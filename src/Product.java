@@ -36,11 +36,16 @@ class LiquidProduct extends Product{
     @Override
     Product parseString(String s) {
         Product pr = null;
-        if(s.matches("([А-ЯІЇЄа-іїє]+ / ){3}[1-9][0-9]* грн / [1-9][0-9]* л")){
+        try{
+            if(!s.matches("([A-Za-zА-ЯІЇЄа-іїє ,]+ / ){3}[1-9][0-9]* грн / [1-9][0-9]* л"))
+                throw new Exception("Неправильний формат введення даних!!!");
             String[] temp = s.split(" / ");
             double price = Double.parseDouble(temp[3].substring(0,temp[3].length()-4));
             int count = Integer.parseInt(temp[4].substring(0,temp[4].length()-2));
             pr = new LiquidProduct(temp[0], temp[1], temp[2], price, count);
+        }
+        catch (Exception e){
+            System.out.println("Неправильний формат введення даних!!!");
         }
         return pr;
     }
@@ -60,13 +65,18 @@ class WeightProduct extends Product{
     @Override
     Product parseString(String s) {
         Product pr = null;
-        if(s.matches("([А-ЯІЇЄа-іїє]+ / ){3}[1-9][0-9]* грн / [1-9][0-9]* кг")){
+        try {
+            if(!s.matches("([A-Za-zА-ЯІЇЄа-іїє ,]+ / ){3}[1-9][0-9]* грн / [1-9][0-9]* кг"))
+                throw new Exception("Неправильний формат введення даних!!!");
             String[] temp = s.split(" / ");
-            int count = Integer.parseInt(temp[4].substring(0,temp[4].length()-3));
-            double price = Double.parseDouble(temp[3].substring(0,temp[3].length()-4));
+            double price = Double.parseDouble(temp[3].substring(0, temp[3].length() - 4));
+            int count = Integer.parseInt(temp[4].substring(0, temp[4].length() - 3));
             pr = new WeightProduct(temp[0], temp[1], temp[2], price, count);
         }
-        return  pr;
+        catch(Exception e){
+            System.out.println("Неправильний формат введення даних!!!");
+        }
+        return pr;
     }
 }
 
@@ -84,11 +94,16 @@ class PieceProduct extends Product{
     @Override
     Product parseString(String s){
         Product pr = null;
-        if(s.matches("([A-Za-zА-ЯІЇЄа-іїє]+ / ){3}[1-9][0-9]*(\\.[0-9]+)? грн / [1-9][0-9]* шт")){
+        try {
+            if (!s.matches("([A-Za-zА-ЯІЇЄа-іїє ,]+ / ){3}[1-9][0-9]*(\\.[0-9]+)? грн / [1-9][0-9]* шт"))
+                throw new Exception("Неправильний формат введення даних!!!");
             String[] temp = s.split(" / ");
-            double price = Double.parseDouble(temp[3].substring(0,temp[3].length()-4));
-            int count = Integer.parseInt(temp[4].substring(0,temp[4].length()-3));
+            double price = Double.parseDouble(temp[3].substring(0, temp[3].length() - 4));
+            int count = Integer.parseInt(temp[4].substring(0, temp[4].length() - 3));
             pr = new PieceProduct(temp[0], temp[1], temp[2], price, count);
+        }
+        catch(Exception e){
+            System.out.println("Неправильний формат введення даних!!!");
         }
         return pr;
     }
