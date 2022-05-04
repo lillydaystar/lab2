@@ -5,7 +5,7 @@ public class Product {
     String maker;
     String group;
     int count;
-    String regex = "([A-Za-zА-ЯІЇЄа-іїє ,]+ / ){3}[1-9][0-9]* грн / [1-9][0-9]*";
+    String regex = "([A-Za-zА-ЯІЇЄа-іїє ,]+ / ){3}[1-9][0-9]*(.[0-9]+)? грн / [1-9][0-9]*";
 
     Product(String name, String description, String maker, double price, int count){
         this.name = name;
@@ -26,7 +26,8 @@ public class Product {
                 throw new Exception("Неправильний формат введення даних!!!");
             String[] temp = s.split(" / ");
             double price = Double.parseDouble(temp[3].substring(0,temp[3].length()-4));
-            int count = Integer.parseInt(temp[4].substring(0,temp[4].length()-3));
+            while(Character.isLetter(temp[4].charAt(temp[4].length()-1))) temp[4] = temp[4].substring(0,temp[4].length()-2);
+            int count = Integer.parseInt(temp[4].substring(0,temp[4].length()-1));
             pr = new Product(temp[0], temp[1], temp[2], price, count);
         }
         catch (Exception e){
