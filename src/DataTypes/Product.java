@@ -1,3 +1,8 @@
+package DataTypes;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class Product {
     String name;
     String description;
@@ -5,7 +10,9 @@ public class Product {
     String maker;
     String group;
     int count;
-    String regex = "([A-Za-zА-ЯІЇЄа-іїє ,]+ / ){3}[1-9][0-9]*(.[0-9]+)? грн / [1-9][0-9]*";
+    String regex = "([A-Za-zА-ЯІЇЄа-іїє ]+) / ([A-Za-zА-ЯІЇЄа-іїє ,]+) / ([A-Za-zА-ЯІЇЄа-іїє ]+) / (\\d+(.[0-9]+)?) грн / (\\d+)";
+
+    Product(){}
 
     Product(String name, String description, String maker, double price, int count){
         this.name = name;
@@ -20,29 +27,39 @@ public class Product {
     }
 
     Product parseString(String s){
-        Product pr = null;
+        Product pr;
         try{
-            if(!s.matches(regex))
-                throw new Exception("Неправильний формат введення даних!!!");
-            String[] temp = s.split(" / ");
-            double price = Double.parseDouble(temp[3].substring(0,temp[3].length()-4));
-            while(Character.isLetter(temp[4].charAt(temp[4].length()-1))) temp[4] = temp[4].substring(0,temp[4].length()-2);
-            int count = Integer.parseInt(temp[4].substring(0,temp[4].length()-1));
-            pr = new Product(temp[0], temp[1], temp[2], price, count);
+            Pattern pat = Pattern.compile(regex);
+            Matcher matcher = pat.matcher(s);
+            if(!matcher.matches()) throw new Exception("Неправильний формат введення даних!!!");
+            double price = Double.parseDouble(matcher.group(4));
+            int count = Integer.parseInt(matcher.group(6));
+            pr = new Product(matcher.group(1), matcher.group(2), matcher.group(3), price, count);
         }
         catch (Exception e){
             System.out.println("Неправильний формат введення даних!!!");
+            return null;
         }
         return pr;
     }
 
+    static Product parseProduct(String s){
+        Product pr = null;
+        if(s.endsWith("шт")) pr = new PieceProduct();
+        if(s.endsWith("л")) pr = new LiquidProduct();
+        if(s.endsWith("кг")) pr = new WeightProduct();
+        return pr;
+    }
 }
 
 class LiquidProduct extends Product{
 
+    LiquidProduct(){
+        regex = super.regex + " л";}
+
     LiquidProduct(String name, String description, String maker, double price, int count) {
         super(name, description, maker, price, count);
-        this.regex = super.regex + " л";
+        regex = super.regex + " л";
     }
 
     @Override
@@ -53,15 +70,19 @@ class LiquidProduct extends Product{
     @Override
     LiquidProduct parseString(String s) {
         Product father = super.parseString(s);
+        if(father == null) return null;
         return new LiquidProduct(father.name,father.description,father.maker,father.price,father.count);
     }
 }
 
 class WeightProduct extends Product{
 
+    WeightProduct(){
+        regex = super.regex + " кг";}
+
     WeightProduct(String name, String description, String maker, double price, int count) {
         super(name, description, maker, price, count);
-        this.regex = super.regex + " кг";
+        regex = super.regex + " кг";
     }
 
     @Override
@@ -72,15 +93,19 @@ class WeightProduct extends Product{
     @Override
     WeightProduct parseString(String s) {
         Product father = super.parseString(s);
+        if(father == null) return null;
         return new WeightProduct(father.name,father.description,father.maker,father.price,father.count);
     }
 }
 
 class PieceProduct extends Product{
 
+    PieceProduct(){
+        regex = super.regex + " шт";}
+
     PieceProduct(String name, String description, String maker, double price, int count) {
         super(name, description, maker, price, count);
-        this.regex = super.regex + " шт";
+        regex = super.regex + " шт";
     }
 
     @Override
@@ -91,6 +116,7 @@ class PieceProduct extends Product{
     @Override
     PieceProduct parseString(String s){
         Product father = super.parseString(s);
+        if(father == null) return null;
         return new PieceProduct(father.name,father.description,father.maker,father.price,father.count);
     }
 }
