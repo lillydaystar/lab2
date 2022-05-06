@@ -4,14 +4,13 @@
  *
  */
 import DataTypes.Group;
+import Graphical.MainWindow;
 
 import java.util.ArrayList;
 
 public class Tester {
 
-    static ArrayList<Group> groups = new ArrayList<>();
-
     public static void main(String[] args) {
-        new Window();
+        new MainWindow();
     }
 }

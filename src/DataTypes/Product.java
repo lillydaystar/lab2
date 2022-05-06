@@ -23,7 +23,9 @@ public class Product {
     }
 
     public String toString(){
-        return name + " / " + description + " / " + maker + " / " + price + " грн / " + count;
+        String newPrice = String.valueOf(price);
+        if(newPrice.endsWith(".0")) newPrice = newPrice.substring(0,newPrice.length()-2);
+        return name + " / " + description + " / " + maker + " / " + newPrice + " грн / " + count;
     }
 
     Product parseString(String s){

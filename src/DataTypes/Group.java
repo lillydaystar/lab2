@@ -13,9 +13,10 @@ public class Group {
     //Group_'<name>'_size_<size>_description_'<...>'
     //...products...
 
-    private List<Product> group;
+    private List<Product> products;
     private String name;
     private String description;
+    private File file;
 
 //    public DataTypes.Group(String name) {
 //        this.name = name;
@@ -26,7 +27,8 @@ public class Group {
      */
 
     public Group(File path) throws IOException, IllegalFileFormatException {
-        this.group = new ArrayList<>();
+        this.file = path;
+        this.products = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(path));
         String nextString = reader.readLine();
         int numberOfProducts;
@@ -38,27 +40,39 @@ public class Group {
         while (nextString != null) {
             Product product = Product.parseProduct(nextString);
             product = product.parseString(nextString);
-            this.group.add(product);
+            this.products.add(product);
             nextString = reader.readLine();
         }
-        System.out.println(group);
+        System.out.println(products);
         System.out.println("Group "+this.name+" number "+this.getNumberOfProducts()+" description "+this.description);
-        if (numberOfProducts != this.group.size())
-            throw new IllegalFileFormatException("Expected "+numberOfProducts+" products, found "+this.group.size());
+        if (numberOfProducts != this.products.size())
+            throw new IllegalFileFormatException("Expected "+numberOfProducts+" products, found "+this.products.size());
     }
 
     public void add(Product newProduct) {
-        this.group.add(newProduct);
+        this.products.add(newProduct);
     }
 
     public int getNumberOfProducts() {
-        return this.group.size();
+        return this.products.size();
     }
 
     public Product getProduct(int number) {
-        if (number < 0 || number >= this.group.size())
+        if (number < 0 || number >= this.products.size())
             throw new IllegalArgumentException("No such index "+number+" in group "+this.name);
-        return this.group.get(number);
+        return this.products.get(number);
+    }
+
+    public List<Product> getProducts(){
+        return products;
+    }
+
+    public void deleteProduct(Product deletedProduct){
+        this.products.remove(deletedProduct);
+    }
+
+    public File getFile(){
+        return this.file;
     }
 
     public String getName() {
@@ -83,6 +97,11 @@ public class Group {
         int numberOfProducts = Integer.parseInt(matcher.group(2));
         this.description = matcher.group(3);
         return numberOfProducts;
+    }
+
+    @Override
+    public String toString() {
+        return name;
     }
 }
 
