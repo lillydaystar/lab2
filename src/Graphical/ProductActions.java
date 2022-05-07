@@ -4,8 +4,6 @@ import DataTypes.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,19 +12,19 @@ public class ProductActions extends JFrame {
 
     JPanel panel;
 
-    ProductActions(){
+    ProductActions(MainWindow window){
         setTitle("Товар");
-        init();
+        init(window);
     }
 
-    void init(){
+    void init(MainWindow window) {
         setBounds(800,300,400,300);
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         add(panel);
         setVisible(true);
 
         JComboBox<Group> viewGroups = new JComboBox<Group>();
-        for (Group group : MainWindow.groups) viewGroups.addItem(group);
+        for (Group group : window.store) viewGroups.addItem(group);
         panel.add(viewGroups);
         JButton add = new JButton("Додати");
         JButton edit = new JButton("Редагувати");
@@ -302,6 +300,7 @@ public class ProductActions extends JFrame {
         boolean delete = tempFile.delete();
     }
 
+<<<<<<< Updated upstream
     private void changeGroupSize(Group gr) throws IOException {
         File inputFile = gr.getFile();
         File tempFile = new File("Temp.txt");
@@ -329,3 +328,6 @@ class EmptyProductsException extends Exception{
         JOptionPane.showMessageDialog(null, "Не створено/додано жодного товару","Error",  JOptionPane.ERROR_MESSAGE);
     }
 }
+=======
+}
+>>>>>>> Stashed changes

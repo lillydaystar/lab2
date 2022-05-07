@@ -25,7 +25,6 @@ public class Group {
     /* This constructor takes File object and reads group of products
      * from it.
      */
-
     public Group(File path) throws IOException, IllegalFileFormatException {
         this.file = path;
         this.products = new ArrayList<>();
@@ -91,8 +90,6 @@ public class Group {
         Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-z ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-z\\s]*)'");
         Matcher matcher = headerPattern.matcher(header);
         if (!matcher.matches()) throw new IllegalFileFormatException("Incorrect header format");
-//        System.out.println(matcher.group(1));
-//        System.out.println(matcher.group(3));
         this.name = matcher.group(1);
         int numberOfProducts = Integer.parseInt(matcher.group(2));
         this.description = matcher.group(3);
@@ -103,17 +100,4 @@ public class Group {
     public String toString() {
         return name;
     }
-}
-
-class IllegalFileFormatException extends Exception {
-    IllegalFileFormatException(String message) {
-        super(message);
-    }
-    IllegalFileFormatException() {
-        super();
-    }
-}
-
-class IllegalProductFormatException extends Exception {
-
 }
