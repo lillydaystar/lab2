@@ -14,7 +14,7 @@ public class Product {
 
     Product(){}
 
-    Product(String name, String description, String maker, double price, int count){
+    public Product(String name, String description, String maker, double price, int count){
         this.name = name;
         this.description = description;
         this.price = price;
@@ -52,73 +52,47 @@ public class Product {
         if(s.endsWith("кг")) pr = new WeightProduct();
         return pr;
     }
-}
 
-class LiquidProduct extends Product{
-
-    LiquidProduct(){
-        regex = super.regex + " л";}
-
-    LiquidProduct(String name, String description, String maker, double price, int count) {
-        super(name, description, maker, price, count);
-        regex = super.regex + " л";
+    public String getName() {
+        return name;
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + " л";
+    public String getDescription() {
+        return description;
     }
 
-    @Override
-    LiquidProduct parseString(String s) {
-        Product father = super.parseString(s);
-        if(father == null) return null;
-        return new LiquidProduct(father.name,father.description,father.maker,father.price,father.count);
-    }
-}
-
-class WeightProduct extends Product{
-
-    WeightProduct(){
-        regex = super.regex + " кг";}
-
-    WeightProduct(String name, String description, String maker, double price, int count) {
-        super(name, description, maker, price, count);
-        regex = super.regex + " кг";
+    public double getPrice() {
+        return price;
     }
 
-    @Override
-    public String toString() {
-        return super.toString() + " кг";
+    public String getMaker() {
+        return maker;
     }
 
-    @Override
-    WeightProduct parseString(String s) {
-        Product father = super.parseString(s);
-        if(father == null) return null;
-        return new WeightProduct(father.name,father.description,father.maker,father.price,father.count);
+    public int getCount() {
+        return count;
+    }
+
+    public String getEnding(){return "";}
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public void setMaker(String maker) {
+        this.maker = maker;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
     }
 }
 
-class PieceProduct extends Product{
-
-    PieceProduct(){
-        regex = super.regex + " шт";}
-
-    PieceProduct(String name, String description, String maker, double price, int count) {
-        super(name, description, maker, price, count);
-        regex = super.regex + " шт";
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + " шт";
-    }
-
-    @Override
-    PieceProduct parseString(String s){
-        Product father = super.parseString(s);
-        if(father == null) return null;
-        return new PieceProduct(father.name,father.description,father.maker,father.price,father.count);
-    }
-}

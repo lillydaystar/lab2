@@ -95,6 +95,7 @@ public class MainWindow extends JFrame {
     /**Додавання файлу з групою до списку*/
     private static void addFile(){
         JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File("."));
         fileChooser.setAcceptAllFileFilterUsed(false);
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
         fileChooser.addChoosableFileFilter(filter);
