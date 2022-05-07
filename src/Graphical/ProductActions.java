@@ -300,7 +300,6 @@ public class ProductActions extends JFrame {
         boolean delete = tempFile.delete();
     }
 
-<<<<<<< Updated upstream
     private void changeGroupSize(Group gr) throws IOException {
         File inputFile = gr.getFile();
         File tempFile = new File("Temp.txt");
@@ -318,16 +317,3 @@ public class ProductActions extends JFrame {
     }
 
 }
-
-class EmptyProductsException extends Exception{
-
-    EmptyProductsException(){}
-
-    EmptyProductsException(String msg){
-        super(msg);
-        JOptionPane.showMessageDialog(null, "Не створено/додано жодного товару","Error",  JOptionPane.ERROR_MESSAGE);
-    }
-}
-=======
-}
->>>>>>> Stashed changes
