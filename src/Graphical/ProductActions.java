@@ -5,6 +5,8 @@ import DataTypes.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ProductActions extends JFrame {
 
@@ -56,12 +58,18 @@ public class ProductActions extends JFrame {
     }
 
     private void addProduct(Group gr){
-
+        this.revalidate();
+        this.repaint();
+        panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        this.add(panel);
     }
 
     private void editProduct(Group gr) throws EmptyProductsException {
         if(gr.getNumberOfProducts() == 0) throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
-        Product pr;
+        this.revalidate();
+        this.repaint();
+        panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        this.add(panel);
 
     }
 
@@ -70,7 +78,6 @@ public class ProductActions extends JFrame {
 
         this.revalidate();
         this.repaint();
-
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         this.add(panel);
         JComboBox<Product> viewProducts = new JComboBox<Product>();
@@ -103,16 +110,34 @@ public class ProductActions extends JFrame {
 
         String lineToRemove = pr.toString();
         String currentLine;
-
+        String groupLine = reader.readLine();
+        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-z ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-z\\s]*)'");
+        Matcher matcher = headerPattern.matcher(groupLine);
+        if(matcher.matches())
+            groupLine = "Group '" + matcher.group(1) + "' size " + gr.getNumberOfProducts() + " description '" + matcher.group(3) + "'";
+        writer.write(groupLine + "\n");
         while((currentLine = reader.readLine()) != null) {
             String trimmedLine = currentLine.trim();
             if(trimmedLine.equals(lineToRemove)) continue;
             writer.write(currentLine + "\n");
         }
-        writer.close();
         reader.close();
-        boolean successful = tempFile.renameTo(inputFile);         //не працює
-        boolean del2 = tempFile.delete();
+        writer.close();
+
+        rewriteFiles(tempFile,inputFile);
+    }
+
+    private void rewriteFiles(File tempFile, File fileToEdit) throws IOException {
+        BufferedReader reader = new BufferedReader(new FileReader(tempFile));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(fileToEdit));
+
+        String s;
+        while((s = reader.readLine()) != null) {
+            writer.write(s + "\n");
+        }
+        reader.close();
+        writer.close();
+        boolean delete = tempFile.delete();
     }
 
 }
