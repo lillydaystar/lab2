@@ -10,7 +10,7 @@ public class Group {
 
     //File format:
     //
-    //Group_'<name>'_size_<size>_description_'<...>'
+    //Group '<name>' size <size> description '<...>'
     //...products...
 
     private List<Product> products;
@@ -82,9 +82,19 @@ public class Group {
         return this.description;
     }
 
-//    public void sort() {
-//        this.group.sort();
-//    }
+    public void sortByName(boolean fromAtoZ) {
+        this.products.sort((fst, snd) -> compare(fst.getName(), snd.getName())*(fromAtoZ ? 1 : -1));
+    }
+
+    public void sortByPrice(boolean fromCheapToExpensive) {
+        this.products.sort((fst, snd) -> {
+            if (fst.price > snd.price)
+                return fromCheapToExpensive ? 1 : -1;
+            else if (fst.price < snd.price)
+                return fromCheapToExpensive ? -1 : 1;
+            else return 0;
+        });
+    }
 
     private int parseHeader(String header) throws IllegalFileFormatException {
         Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-z ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-z\\s]*)'");
@@ -94,6 +104,20 @@ public class Group {
         int numberOfProducts = Integer.parseInt(matcher.group(2));
         this.description = matcher.group(3);
         return numberOfProducts;
+    }
+
+    private static int compare(String fst, String snd) {
+        for (int i = 0; i < Math.min(fst.length(), snd.length()); i++) {
+            if (fst.charAt(i) < snd.charAt(i))
+                return -1;
+            else if (fst.charAt(i) > snd.charAt(i))
+                return 1;
+        }
+        if (fst.length() < snd.length())
+            return -1;
+        if (snd.length() > snd.length())
+            return 1;
+        return 0;
     }
 
     @Override
