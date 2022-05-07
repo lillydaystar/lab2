@@ -114,6 +114,7 @@ public class ProductActions extends JFrame {
     }
 
     private void addToFile(Group gr, Product pr) throws IOException{
+        changeGroupSize(gr);
         try{
             FileWriter fStream = new FileWriter(gr.getFile(),true);
             BufferedWriter out = new BufferedWriter(fStream);
@@ -272,18 +273,13 @@ public class ProductActions extends JFrame {
     }
 
     private void deleteFromFile(Group gr, Product pr) throws IOException {
+        changeGroupSize(gr);
         File inputFile = gr.getFile();
         File tempFile = new File("Temp.txt");
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
         String lineToRemove = pr.toString();
         String currentLine;
-        String groupLine = reader.readLine();
-        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-z ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-z\\s]*)'");
-        Matcher matcher = headerPattern.matcher(groupLine);
-        if(matcher.matches())
-            groupLine = "Group '" + matcher.group(1) + "' size " + gr.getNumberOfProducts() + " description '" + matcher.group(3) + "'";
-        writer.write(groupLine + "\n");
         while((currentLine = reader.readLine()) != null) {
             String trimmedLine = currentLine.trim();
             if(trimmedLine.equals(lineToRemove)) continue;
@@ -297,7 +293,6 @@ public class ProductActions extends JFrame {
     private void rewriteFiles(File tempFile, File fileToEdit) throws IOException {
         BufferedReader reader = new BufferedReader(new FileReader(tempFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(fileToEdit));
-
         String s;
         while((s = reader.readLine()) != null) {
             writer.write(s + "\n");
@@ -305,6 +300,22 @@ public class ProductActions extends JFrame {
         reader.close();
         writer.close();
         boolean delete = tempFile.delete();
+    }
+
+    private void changeGroupSize(Group gr) throws IOException {
+        File inputFile = gr.getFile();
+        File tempFile = new File("Temp.txt");
+        BufferedReader reader = new BufferedReader(new FileReader(inputFile));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+        String groupLine = reader.readLine();
+        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-z ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-z\\s]*)'");
+        Matcher matcher = headerPattern.matcher(groupLine);
+        if(matcher.matches())
+            groupLine = "Group '" + matcher.group(1) + "' size " + gr.getNumberOfProducts() + " description '" + matcher.group(3) + "'";
+        writer.write(groupLine + "\n");
+        writer.close();
+        reader.close();
+        rewriteFiles(tempFile,inputFile);
     }
 
 }
