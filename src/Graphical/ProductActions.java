@@ -14,11 +14,13 @@ public class ProductActions extends JFrame {
 
     ProductActions(MainWindow window){
         setTitle("Товар");
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         init(window);
     }
 
     void init(MainWindow window) {
-        setBounds(800,300,400,300);
+        setSize(400,300);
+        toCentre();
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         add(panel);
         setVisible(true);
@@ -57,11 +59,18 @@ public class ProductActions extends JFrame {
         });
     }
 
-    private void resetPanel() {
+    public void resetPanel() {
         this.revalidate();
         this.repaint();
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         this.add(panel);
+    }
+
+    public void toCentre(){
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
+        setLocation(x,y);
     }
 
     private void addProduct(Group gr){
@@ -89,37 +98,47 @@ public class ProductActions extends JFrame {
         panel.add(type);
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {
-            String n,d,m;
-            double p;
-            n = name.getText();
-            p = Double.parseDouble(price.getText());       //add exception
-            d = description.getText();
-            m = maker.getText();
             try {
-                Product newPr = null;
-                String selected = (String)type.getSelectedItem();
-                if (selected == null)
-                    throw new NullPointerException("Selected item is null!");
-                switch (selected) {
-                    case "Цілісний(шт)":
-                        newPr = new PieceProduct(n, d, m, p, 0);
-                        break;
-                    case "Сипучий(кг)":
-                        newPr = new WeightProduct(n, d, m, p, 0);
-                        break;
-                    case "Рідкий(л)":
-                        newPr = new LiquidProduct(n, d, m, p, 0);
-                        break;
+                if (name.getText().isEmpty() || price.getText().isEmpty() || description.getText().isEmpty() || maker.getText().isEmpty())
+                    throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                String n, d, m;
+                double p;
+                n = name.getText();
+                if(!price.getText().matches("\\d+(.\\d+)?"))
+                    throw new IllegalInputFormat("Неправильний формат числа!!!");
+                p = Double.parseDouble(price.getText());
+                d = description.getText();
+                m = maker.getText();
+                try {
+                    Product newPr = null;
+                    String selected = (String) type.getSelectedItem();
+                    if (selected == null)
+                        throw new NullPointerException("Selected item is null!");
+                    switch (selected) {
+                        case "Цілісний(шт)":
+                            newPr = new PieceProduct(n, d, m, p, 0);
+                            break;
+                        case "Сипучий(кг)":
+                            newPr = new WeightProduct(n, d, m, p, 0);
+                            break;
+                        case "Рідкий(л)":
+                            newPr = new LiquidProduct(n, d, m, p, 0);
+                            break;
+                    }
+                    gr.add(newPr);
+                    addToFile(gr, newPr);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                addToFile(gr,newPr);
-                gr.add(newPr);
-            } catch (IOException e) {
+            }
+            catch (IllegalInputFormat e) {
                 e.printStackTrace();
             }
             dispose();
         });
         panel.add(submit);
         pack();
+        toCentre();
     }
 
     private void addToFile(Group gr, Product pr) throws IOException{
@@ -161,6 +180,7 @@ public class ProductActions extends JFrame {
         panel.add(maker);
         panel.add(b);
         pack();
+        toCentre();
     }
 
     private void editProductParams(Group gr, Product pr, boolean nameSelected,
@@ -203,38 +223,53 @@ public class ProductActions extends JFrame {
         JTextArea finalDescription = description;
         JTextArea finalMaker = maker;
         submit.addActionListener(press -> {
-            String n,d,m;
-            double p;
-            if(finalName == null) n = pr.getName();
-            else {
-                n = finalName.getText();
-            }
-            if(finalPrice == null) p = pr.getPrice();
-            else {
-                p = Double.parseDouble(finalPrice.getText());       //add exception
-            }
-            if(finalDescription == null) d = pr.getDescription();
-            else {
-                d = finalDescription.getText();
-            }
-            if(finalMaker == null) m = pr.getMaker();
-            else {
-                m = finalMaker.getText();
-            }
-
             try {
-                editFile(gr,pr,n,p,d,m);
-                pr.setName(n);
-                pr.setPrice(p);
-                pr.setDescription(d);
-                pr.setMaker(m);
-            } catch (IOException e) {
+                String n, d, m;
+                double p;
+                if (finalName == null) n = pr.getName();
+                else {
+                    if(finalName.getText().isEmpty())
+                        throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                    n = finalName.getText();
+                }
+                if (finalPrice == null) p = pr.getPrice();
+                else {
+                    if(finalPrice.getText().isEmpty())
+                        throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                    if(!finalPrice.getText().matches("\\d+(.\\d+)?"))
+                        throw new IllegalInputFormat("Неправильний формат числа!!!");
+                    p = Double.parseDouble(finalPrice.getText());
+                }
+                if (finalDescription == null) d = pr.getDescription();
+                else {
+                    if(finalDescription.getText().isEmpty())
+                        throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                    d = finalDescription.getText();
+                }
+                if (finalMaker == null) m = pr.getMaker();
+                else {
+                    if(finalMaker.getText().isEmpty())
+                        throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                    m = finalMaker.getText();
+                }
+
+                try {
+                    editFile(gr, pr, n, p, d, m);
+                    pr.setName(n);
+                    pr.setPrice(p);
+                    pr.setDescription(d);
+                    pr.setMaker(m);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } catch (IllegalInputFormat e) {
                 e.printStackTrace();
             }
             dispose();
         });
         panel.add(submit);
         pack();
+        toCentre();
     }
 
     private void editFile(Group gr, Product pr, String n, double p, String d, String m) throws IOException {
@@ -283,7 +318,8 @@ public class ProductActions extends JFrame {
         panel.add(viewProducts);
         b.setVisible(true);
         viewProducts.setVisible(true);
-        this.pack();
+        pack();
+        toCentre();
     }
 
     private void deleteFromFile(Group gr, Product pr) throws IOException {
@@ -329,6 +365,10 @@ public class ProductActions extends JFrame {
         if(matcher.matches())
             groupLine = "Group '" + matcher.group(1) + "' size " + gr.getNumberOfProducts() + " description '" + matcher.group(3) + "'";
         writer.write(groupLine + "\n");
+        String s;
+        while((s = reader.readLine()) != null) {
+            writer.write(s + "\n");
+        }
         writer.close();
         reader.close();
         rewriteFiles(tempFile,inputFile);

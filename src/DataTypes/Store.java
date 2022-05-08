@@ -1,5 +1,6 @@
 package DataTypes;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +44,10 @@ public class Store implements Iterable<Group> {
             else throw new IncorrectGroupException("Incorrect group! (not all fields initialized)");
         }
         else throw new IncorrectGroupException("Group position is out of bounds for this store");
+    }
+
+    public boolean fileExist(File file){
+        return groups.stream().map(Group::getFile).anyMatch(f -> f.equals(file));
     }
 
     public boolean isEmpty() {

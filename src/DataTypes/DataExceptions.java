@@ -9,8 +9,8 @@ class IllegalFileFormatException extends Exception {
     }
 }
 
-class IllegalProductFormatException extends Exception {
-    IllegalProductFormatException(String message) {
+class IncorrectProductException extends Exception {
+    IncorrectProductException(String message) {
         super(message);
     }
 }

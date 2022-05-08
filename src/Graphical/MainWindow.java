@@ -46,11 +46,10 @@ public class MainWindow extends JFrame {
         });
         inputButton.addActionListener(press -> {
             /* action listener for Input button */
-            addFile();
+            addInfo();
         });
         outputButton.addActionListener(press -> {
             /* action listener for Output button */
-            createFile();
         });
         topPanel.add(inputButton);
         topPanel.add(viewCombo);
@@ -81,7 +80,7 @@ public class MainWindow extends JFrame {
         this.add(scroll);
     }
 
-    private void createFile(){
+    private void addInfo(){
         JFrame choiceWindow = new JFrame("Choose an action");
         JPanel choicePanel = new JPanel(null);
         choiceWindow.setSize(500,200);
@@ -101,6 +100,7 @@ public class MainWindow extends JFrame {
         groupButton.addActionListener(press -> {
             /* action listener for Group button */
             choiceWindow.dispose();
+            groupAction();
         });
         productButton.addActionListener(press -> {
             /* action listener for Product button */
@@ -122,26 +122,8 @@ public class MainWindow extends JFrame {
         action.setVisible(true);
     }
 
-    /**Додавання файлу з групою до списку*/
-    private void addFile(){
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File("."));
-        fileChooser.setAcceptAllFileFilterUsed(false);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
-        fileChooser.addChoosableFileFilter(filter);
-        int returnVal = fileChooser.showOpenDialog(null);
-        File file = fileChooser.getSelectedFile();
-        if (returnVal == JFileChooser.APPROVE_OPTION) {
-            if (file != null) {
-                try {
-                    Group group = new Group(file);
-                    store.add(group);
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
+    private void groupAction(){
+        JFrame action = new GroupActions(this);
+        action.setVisible(true);
     }
 }
