@@ -4,8 +4,6 @@ import DataTypes.*;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,19 +12,19 @@ public class ProductActions extends JFrame {
 
     JPanel panel;
 
-    ProductActions(){
+    ProductActions(MainWindow window){
         setTitle("Товар");
-        init();
+        init(window);
     }
 
-    void init(){
+    void init(MainWindow window) {
         setBounds(800,300,400,300);
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         add(panel);
         setVisible(true);
 
-        JComboBox<Group> viewGroups = new JComboBox<Group>();
-        for (Group group : MainWindow.groups) viewGroups.addItem(group);
+        JComboBox<Group> viewGroups = new JComboBox<>();
+        for (Group group : window.store) viewGroups.addItem(group);
         panel.add(viewGroups);
         JButton add = new JButton("Додати");
         JButton edit = new JButton("Редагувати");
@@ -99,9 +97,20 @@ public class ProductActions extends JFrame {
             m = maker.getText();
             try {
                 Product newPr = null;
-                if(type.getSelectedItem().equals("Цілісний(шт)")) newPr = new PieceProduct(n,d,m,p,0);
-                else if(type.getSelectedItem().equals("Сипучий(кг)")) newPr = new WeightProduct(n,d,m,p,0);
-                else if(type.getSelectedItem().equals("Рідкий(л)")) newPr = new LiquidProduct(n,d,m,p,0);
+                String selected = (String)type.getSelectedItem();
+                if (selected == null)
+                    throw new NullPointerException("Selected item is null!");
+                switch (selected) {
+                    case "Цілісний(шт)":
+                        newPr = new PieceProduct(n, d, m, p, 0);
+                        break;
+                    case "Сипучий(кг)":
+                        newPr = new WeightProduct(n, d, m, p, 0);
+                        break;
+                    case "Рідкий(л)":
+                        newPr = new LiquidProduct(n, d, m, p, 0);
+                        break;
+                }
                 addToFile(gr,newPr);
                 gr.add(newPr);
             } catch (IOException e) {
@@ -128,7 +137,7 @@ public class ProductActions extends JFrame {
     private void editProduct(Group gr) throws EmptyProductsException {
         if(gr.getNumberOfProducts() == 0) throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
         resetPanel();
-        JComboBox<Product> viewProducts = new JComboBox<Product>();
+        JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
         JCheckBox name = new JCheckBox("Назва");
         JCheckBox price = new JCheckBox("Ціна");
@@ -138,11 +147,11 @@ public class ProductActions extends JFrame {
         JButton b = new JButton("Submit");
         b.addActionListener(press -> {
             Product pr = (Product) viewProducts.getSelectedItem();
-            try {
-                remove(panel);
+            remove(panel);
+            if (pr != null) {
                 editProductParams(gr, pr, name.isSelected(), price.isSelected(), description.isSelected(), maker.isSelected());
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                throw new NullPointerException("Product argument in editProduct(Group gr) function is null!");
             }
         });
         panel.add(viewProducts);
@@ -154,7 +163,9 @@ public class ProductActions extends JFrame {
         pack();
     }
 
-    private void editProductParams(Group gr, Product pr, boolean nameSelected, boolean priceSelected, boolean descrySelected, boolean makerSelected) throws IOException{
+    private void editProductParams(Group gr, Product pr, boolean nameSelected,
+                                   boolean priceSelected, boolean descrySelected,
+                                   boolean makerSelected) {
         resetPanel();
         JLabel product = new JLabel(pr.toString());
         panel.add(product);
@@ -249,14 +260,17 @@ public class ProductActions extends JFrame {
     }
 
     private void deleteProduct(Group gr) throws EmptyProductsException{
-        if(gr.getNumberOfProducts() == 0) throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+        if(gr.getNumberOfProducts() == 0)
+            throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
         resetPanel();
-        JComboBox<Product> viewProducts = new JComboBox<Product>();
+        JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
 
         JButton b = new JButton("Submit");
         b.addActionListener(press -> {
             Product pr = (Product) viewProducts.getSelectedItem();
+            if (pr == null)
+                throw new NullPointerException("Parameter pr is null in function deleteProduct(Group gr)!");
             gr.deleteProduct(pr);
             try {
                 deleteFromFile(gr,pr);
@@ -299,7 +313,9 @@ public class ProductActions extends JFrame {
         }
         reader.close();
         writer.close();
-        boolean delete = tempFile.delete();
+        boolean deletedSuccessfully = tempFile.delete();
+        if (!deletedSuccessfully)
+            throw new IOException("Temp file was not deleted!");
     }
 
     private void changeGroupSize(Group gr) throws IOException {
@@ -316,16 +332,5 @@ public class ProductActions extends JFrame {
         writer.close();
         reader.close();
         rewriteFiles(tempFile,inputFile);
-    }
-
-}
-
-class EmptyProductsException extends Exception{
-
-    EmptyProductsException(){}
-
-    EmptyProductsException(String msg){
-        super(msg);
-        JOptionPane.showMessageDialog(null, "Не створено/додано жодного товару","Error",  JOptionPane.ERROR_MESSAGE);
     }
 }
