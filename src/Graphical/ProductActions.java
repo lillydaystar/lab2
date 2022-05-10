@@ -19,7 +19,7 @@ public class ProductActions extends JFrame {
     }
 
     void init(MainWindow window) {
-        setSize(400,300);
+        setSize(600,300);
         toCentre();
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         add(panel);
@@ -27,22 +27,17 @@ public class ProductActions extends JFrame {
 
         JComboBox<Group> viewGroups = new JComboBox<>();
         for (Group group : window.store) viewGroups.addItem(group);
-        panel.add(viewGroups);
+
         JButton add = new JButton("Додати");
         JButton edit = new JButton("Редагувати");
         JButton delete = new JButton("Видалити");
 
-        panel.add(add);
-        panel.add(edit);
-        panel.add(delete);
-        add.addActionListener(press -> {
-            remove(panel);
-            addProduct((Group) viewGroups.getSelectedItem());
-        });
+        setObjectsFont(new JComponent[]{viewGroups,add,edit,delete});
+        add.addActionListener(press -> addProduct((Group) viewGroups.getSelectedItem()));
 
         edit.addActionListener(press -> {
             try {
-                remove(panel);
+                if(viewGroups.getSelectedItem() == null) throw new NullPointerException();
                 editProduct((Group) viewGroups.getSelectedItem());
             } catch (EmptyProductsException e) {
                 e.printStackTrace();
@@ -51,7 +46,7 @@ public class ProductActions extends JFrame {
 
         delete.addActionListener(press -> {
             try {
-                remove(panel);
+                if(viewGroups.getSelectedItem() == null) throw new NullPointerException();
                 deleteProduct((Group) viewGroups.getSelectedItem());
             } catch (EmptyProductsException e) {
                 e.printStackTrace();
@@ -60,8 +55,7 @@ public class ProductActions extends JFrame {
     }
 
     public void resetPanel() {
-        this.revalidate();
-        this.repaint();
+        remove(panel);
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         this.add(panel);
     }
@@ -76,26 +70,17 @@ public class ProductActions extends JFrame {
     private void addProduct(Group gr){
         resetPanel();
         JLabel nameL = new JLabel("Назва: ");
-        JTextArea name = new JTextArea(1, 10);
-        panel.add(nameL);
-        panel.add(name);
+        JTextArea name = new JTextArea(1, 8);
         JLabel priceL = new JLabel("Ціна: ");
-        JTextArea price = new JTextArea(1, 10);
-        panel.add(priceL);
-        panel.add(price);
-        JLabel decryL = new JLabel("Опис: ");
+        JTextArea price = new JTextArea(1, 5);
+        JLabel descriptionL = new JLabel("Опис: ");
         JTextArea description = new JTextArea(1, 10);
-        panel.add(decryL);
-        panel.add(description);
         JLabel makerL = new JLabel("Виробник: ");
-        JTextArea maker = new JTextArea(1, 10);
-        panel.add(makerL);
-        panel.add(maker);
+        JTextArea maker = new JTextArea(1, 8);
         JComboBox<String> type = new JComboBox<>();
         type.addItem("Цілісний(шт)");
         type.addItem("Сипучий(кг)");
         type.addItem("Рідкий(л)");
-        panel.add(type);
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {
             try {
@@ -136,9 +121,17 @@ public class ProductActions extends JFrame {
             }
             dispose();
         });
-        panel.add(submit);
-        pack();
-        toCentre();
+        JComponent[] array = {nameL,name,priceL,price,descriptionL,description,makerL,maker,type,submit};
+        setObjectsFont(array);
+        revalidate();
+        repaint();
+    }
+
+    private void setObjectsFont(JComponent[] array) {
+        for (JComponent jComponent : array) {
+            jComponent.setFont(new Font("Arial", Font.PLAIN, 20));
+            panel.add(jComponent);
+        }
     }
 
     private void addToFile(Group gr, Product pr) throws IOException{
@@ -166,21 +159,16 @@ public class ProductActions extends JFrame {
         JButton b = new JButton("Submit");
         b.addActionListener(press -> {
             Product pr = (Product) viewProducts.getSelectedItem();
-            remove(panel);
             if (pr != null) {
                 editProductParams(gr, pr, name.isSelected(), price.isSelected(), description.isSelected(), maker.isSelected());
             } else {
                 throw new NullPointerException("Product argument in editProduct(Group gr) function is null!");
             }
         });
-        panel.add(viewProducts);
-        panel.add(name);
-        panel.add(price);
-        panel.add(description);
-        panel.add(maker);
-        panel.add(b);
-        pack();
-        toCentre();
+        JComponent[] array = {viewProducts,name,price,description,maker,b};
+        setObjectsFont(array);
+        revalidate();
+        repaint();
     }
 
     private void editProductParams(Group gr, Product pr, boolean nameSelected,
@@ -188,6 +176,7 @@ public class ProductActions extends JFrame {
                                    boolean makerSelected) {
         resetPanel();
         JLabel product = new JLabel(pr.toString());
+        product.setFont(new Font("Arial", Font.PLAIN, 20));
         panel.add(product);
         JTextArea name = null;
         JTextArea price = null;
@@ -195,27 +184,23 @@ public class ProductActions extends JFrame {
         JTextArea maker = null;
         if(nameSelected){
             JLabel nameL = new JLabel("Редагуйте назву: ");
-            name = new JTextArea(1, 10);
-            panel.add(nameL);
-            panel.add(name);
+            name = new JTextArea(1, 8);
+            setObjectsFont(new JComponent[]{nameL, name});
         }
         if(priceSelected){
             JLabel priceL = new JLabel("Редагуйте ціну: ");
-            price = new JTextArea(1, 10);
-            panel.add(priceL);
-            panel.add(price);
+            price = new JTextArea(1, 5);
+            setObjectsFont(new JComponent[]{priceL, price});
         }
         if(descrySelected){
-            JLabel decryL = new JLabel("Редагуйте опис: ");
+            JLabel descriptionL = new JLabel("Редагуйте опис: ");
             description = new JTextArea(1, 10);
-            panel.add(decryL);
-            panel.add(description);
+            setObjectsFont(new JComponent[]{descriptionL, description});
         }
         if(makerSelected){
             JLabel makerL = new JLabel("Редагуйте виробника: ");
-            maker = new JTextArea(1, 10);
-            panel.add(makerL);
-            panel.add(maker);
+            maker = new JTextArea(1, 8);
+            setObjectsFont(new JComponent[]{makerL, maker});
         }
         JButton submit = new JButton("Submit");
         JTextArea finalName = name;
@@ -267,9 +252,10 @@ public class ProductActions extends JFrame {
             }
             dispose();
         });
+        submit.setFont(new Font("Arial", Font.PLAIN, 20));
         panel.add(submit);
-        pack();
-        toCentre();
+        revalidate();
+        repaint();
     }
 
     private void editFile(Group gr, Product pr, String n, double p, String d, String m) throws IOException {
@@ -314,12 +300,12 @@ public class ProductActions extends JFrame {
             }
             this.dispose();
         });
-        panel.add(b);
-        panel.add(viewProducts);
+        JComponent[] array = {viewProducts,b};
+        setObjectsFont(array);
         b.setVisible(true);
         viewProducts.setVisible(true);
-        pack();
-        toCentre();
+        revalidate();
+        repaint();
     }
 
     private void deleteFromFile(Group gr, Product pr) throws IOException {
@@ -340,18 +326,14 @@ public class ProductActions extends JFrame {
         rewriteFiles(tempFile,inputFile);
     }
 
-    private void rewriteFiles(File tempFile, File fileToEdit) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(tempFile));
-        BufferedWriter writer = new BufferedWriter(new FileWriter(fileToEdit));
-        String s;
-        while((s = reader.readLine()) != null) {
-            writer.write(s + "\n");
-        }
-        reader.close();
-        writer.close();
-        boolean deletedSuccessfully = tempFile.delete();
-        if (!deletedSuccessfully)
+    private void rewriteFiles(File tempFile, File inputFile) throws IOException {
+        String fileName = inputFile.getName();
+        boolean successfulDel = inputFile.delete();
+        boolean renameTemp = tempFile.renameTo(new File(fileName));
+        if(!successfulDel)
             throw new IOException("Temp file was not deleted!");
+        if(!renameTemp)
+            throw new IOException("Editing file was not successful!");
     }
 
     private void changeGroupSize(Group gr) throws IOException {

@@ -58,7 +58,7 @@ public class MainWindow extends JFrame {
                         }
                     } else {
                         Group selectedGroup = this.store.get(selectedIndex - 1);
-                        this.remove(scroll);
+                        if (this.scroll != null) this.remove(scroll);
                         createGroupTable(selectedGroup);
                         this.revalidate();
                         this.repaint();

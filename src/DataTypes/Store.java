@@ -33,8 +33,10 @@ public class Store implements Iterable<Group> {
     }
 
     public void remove(int position) throws IncorrectGroupException {
-        if (position >= 0 && position < this.groups.size())
+        if (position >= 0 && position < this.groups.size()) {
+            this.groups.get(position).setFile(null);
             this.groups.remove(position);
+        }
         else throw new IncorrectGroupException("Group position is out of bounds for this store");
     }
 

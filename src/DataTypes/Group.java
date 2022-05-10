@@ -42,6 +42,7 @@ public class Group {
             this.products.add(product);
             nextString = reader.readLine();
         }
+        reader.close();
         System.out.println(products);
         System.out.println("Group "+this.name+" number "+this.getNumberOfProducts()+" description "+this.description);
         if (numberOfProducts != this.products.size())
@@ -74,12 +75,22 @@ public class Group {
         return this.file;
     }
 
+    public void setFile(File file){this.file = file;}
+
     public String getName() {
         return this.name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getDescription() {
         return this.description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public void sortByName(boolean fromAtoZ) {
