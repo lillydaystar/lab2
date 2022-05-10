@@ -62,6 +62,7 @@ public class GroupActions extends JFrame {
         fromFile.addActionListener(press -> {
             addFile();
             dispose();
+            window.createTopPanel();
         });
         input.addActionListener(press -> {
             /*створення форми для введення групи вручну*/
