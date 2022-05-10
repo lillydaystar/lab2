@@ -28,7 +28,8 @@ public class Store implements Iterable<Group> {
     public Group get(int number) throws IncorrectGroupException {
         if (number >= 0 && number < this.groups.size())
             return this.groups.get(number);
-        else throw new IncorrectGroupException("Group position is out of bounds for this store");
+        else throw new IncorrectGroupException("Group position "+number
+                +" is out of bounds for this store");
     }
 
     public void remove(int position) throws IncorrectGroupException {
