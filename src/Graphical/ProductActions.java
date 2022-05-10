@@ -11,9 +11,11 @@ import java.util.regex.Pattern;
 public class ProductActions extends JFrame {
 
     JPanel panel;
+    MainWindow window;
 
     ProductActions(MainWindow window){
         setTitle("Товар");
+        this.window = window;
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         init(window);
     }
@@ -86,6 +88,8 @@ public class ProductActions extends JFrame {
             try {
                 if (name.getText().isEmpty() || price.getText().isEmpty() || description.getText().isEmpty() || maker.getText().isEmpty())
                     throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                if(window.store.ProductExist(name.getText()))
+                    throw new ProductExistException("Такий товар уже існує!");
                 String n, d, m;
                 double p;
                 n = name.getText();
@@ -116,7 +120,7 @@ public class ProductActions extends JFrame {
                     e.printStackTrace();
                 }
             }
-            catch (IllegalInputFormat e) {
+            catch (IllegalInputFormat | ProductExistException e) {
                 e.printStackTrace();
             }
             dispose();
@@ -215,6 +219,8 @@ public class ProductActions extends JFrame {
                 else {
                     if(finalName.getText().isEmpty())
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                    if(window.store.ProductExist(finalName.getText()))
+                        throw new ProductExistException("Такий товар уже існує!");
                     n = finalName.getText();
                 }
                 if (finalPrice == null) p = pr.getPrice();
@@ -247,7 +253,7 @@ public class ProductActions extends JFrame {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-            } catch (IllegalInputFormat e) {
+            } catch (IllegalInputFormat | ProductExistException e) {
                 e.printStackTrace();
             }
             dispose();

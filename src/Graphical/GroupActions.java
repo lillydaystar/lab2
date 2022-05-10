@@ -80,7 +80,7 @@ public class GroupActions extends JFrame {
             try {
                 if (name.getText().isEmpty() || description.getText().isEmpty())
                     throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                if(window.store.fileExist(new File(name+".txt")))
+                if(window.store.fileExist(new File(name.getText()+".txt")))
                     throw new GroupExistException("Група з такою назвою уже існує!");
                 try {
                     createGroupFile(name.getText(), description.getText());
@@ -94,6 +94,7 @@ public class GroupActions extends JFrame {
             dispose();
         });
         JComponent[] array = {nameLabel,name,descriptionL,description,submit};
+        setObjectsFont(array);
         revalidate();
         repaint();
     }
@@ -179,6 +180,8 @@ public class GroupActions extends JFrame {
                 if(nameSelected){
                     if(finalName.getText().isEmpty())
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
+                    if(window.store.fileExist(new File(finalName.getText()+".txt")))
+                        throw new GroupExistException("Група з такою назвою уже існує!");
                     n = finalName.getText();
                 } else n = gr.getName();
                 if(descriptionSelected){
@@ -190,7 +193,7 @@ public class GroupActions extends JFrame {
                 editFile(gr, n, d);
                 gr.setName(n);
                 gr.setDescription(d);
-            }catch(IllegalInputFormat | IOException e){
+            }catch(IllegalInputFormat | IOException | GroupExistException e){
                 e.printStackTrace();
             }
             dispose();
