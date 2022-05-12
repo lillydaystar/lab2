@@ -4,21 +4,26 @@ import DataTypes.Group;
 import DataTypes.Product;
 import DataTypes.Store;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.Vector;
 
 public class MainWindow extends JFrame {
 
+    private final static int STORE = 1;
+    private final static int GROUP = 2;
     private JTable table;
     private JPanel topPanel;
+    private JPanel taskPanel;
     private JScrollPane scroll;
     private Vector<String> list;
+    private Group currentGroup;
     final Store store;
 
     public MainWindow(){
         super("Product manager");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setSize(500, 500);
+        this.setSize(800, 600);
         this.store = new Store();
         createTopPanel();
         this.setVisible(true);
@@ -30,8 +35,6 @@ public class MainWindow extends JFrame {
             if (this.topPanel != null) this.remove(topPanel);
             if (this.table != null) this.table = null;
             this.list = new Vector<>(this.store.numberOfGroups() + 2);
-            System.out.println(list.size());
-            System.out.println(list.capacity());
             list.add("Store view");
             for (int i = 0; i < this.store.numberOfGroups(); i++)
                 list.add(this.store.get(i).getName());
@@ -46,20 +49,25 @@ public class MainWindow extends JFrame {
                     int selectedIndex = viewCombo.getSelectedIndex();
                     if (selectedIndex == 0) {
                         if (this.scroll != null) this.remove(scroll);
+                        if (this.taskPanel != null) this.remove(this.taskPanel);
                         createStoreTable();
+                        createTaskPanel(STORE);
                         this.revalidate();
                         this.repaint();
                     } else if (selectedIndex == list.size() - 1) {
                         if (this.table != null) {
-                            System.out.println("hereee");
-                            this.remove(scroll);
+                            if (this.scroll != null) this.remove(scroll);
+                            if (this.taskPanel != null) this.remove(this.taskPanel);
+                            this.currentGroup = null;
                             this.revalidate();
                             this.repaint();
                         }
                     } else {
                         Group selectedGroup = this.store.get(selectedIndex - 1);
-                        this.remove(scroll);
+                        if (this.scroll != null) this.remove(scroll);
+                        if (this.taskPanel != null) this.remove(this.taskPanel);
                         createGroupTable(selectedGroup);
+                        createTaskPanel(GROUP);
                         this.revalidate();
                         this.repaint();
                     }
@@ -67,9 +75,7 @@ public class MainWindow extends JFrame {
                     e.printStackTrace();
                 }
             });
-            inputButton.addActionListener(press -> {
-                addInfo();
-            });
+            inputButton.addActionListener(press -> addInfo());
             outputButton.addActionListener(press -> {
                 /* action listener for Output button */
             });
@@ -87,7 +93,82 @@ public class MainWindow extends JFrame {
         }
     }
 
+    private void createTaskPanel(int choise) {
+        if (choise != GROUP && choise != STORE)
+            return;
+        if (this.taskPanel != null) this.remove(taskPanel);
+        GridLayout layout = new GridLayout(10, 1);
+        layout.setVgap(15);
+        this.taskPanel = new JPanel(layout);
+        this.taskPanel.setPreferredSize(new Dimension(90, 200));
+        JButton azSortButton = new JButton("a->z");
+        JButton zaSortButton = new JButton("z->a");
+        JButton incrSortButton = new JButton("Incr");
+        JButton decrSortButton = new JButton("Decr");
+        JButton addButton = new JButton(choise == GROUP ? "Add" : "New");
+        JButton findButton = new JButton(choise == GROUP ? "Select" : "Find");
+        JButton removeButton = new JButton(choise == GROUP ? "Remove" : "Delete");
+        JButton editButton = new JButton(choise == GROUP ? "Edit" : "Change");
+        azSortButton.addActionListener(press -> {
+            if (choise == GROUP) {
+                this.currentGroup.sortByName(true);
+                refreshGroup();
+            }
+        });
+        zaSortButton.addActionListener(press -> {
+            if (choise == GROUP) {
+                this.currentGroup.sortByName(false);
+                refreshGroup();
+            }
+        });
+        incrSortButton.addActionListener(press -> {
+            if (choise == GROUP) {
+                this.currentGroup.sortByPrice(true);
+                refreshGroup();
+            }
+        });
+        decrSortButton.addActionListener(press -> {
+            if (choise == GROUP) {
+                this.currentGroup.sortByPrice(false);
+                refreshGroup();
+            }
+        });
+        addButton.addActionListener(press -> {
+
+        });
+        findButton.addActionListener(press -> {
+
+        });
+        removeButton.addActionListener(press -> {
+
+        });
+        editButton.addActionListener(press -> {
+
+        });
+        this.taskPanel.add(azSortButton);
+        this.taskPanel.add(zaSortButton);
+        if (choise == GROUP) {
+            this.taskPanel.add(incrSortButton);
+            this.taskPanel.add(decrSortButton);
+        }
+        this.taskPanel.add(findButton);
+        this.taskPanel.add(addButton);
+        this.taskPanel.add(removeButton);
+        this.taskPanel.add(editButton);
+        this.add(taskPanel, "East");
+    }
+
+    private void refreshGroup() {
+        if (this.scroll != null) this.remove(scroll);
+        if (this.taskPanel != null) this.remove(this.taskPanel);
+        createGroupTable(this.currentGroup);
+        createTaskPanel(GROUP);
+        this.revalidate();
+        this.repaint();
+    }
+
     private void createGroupTable(Group group) {
+        this.currentGroup = group;
         String column[] = {"Name", "Price", "Count", "Maker", "Description"};
         String info[][] = new String[group.getNumberOfProducts()][5];
         for (int i = 0; i < group.getNumberOfProducts(); i++) {
@@ -97,6 +178,13 @@ public class MainWindow extends JFrame {
                                     product.getMaker(), product.getDescription()};
         }
         this.table = new JTable(info, column);
+        DefaultTableModel tableModel = new DefaultTableModel(info, column) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        table.setModel(tableModel);
         this.scroll = new JScrollPane(this.table);
         this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -104,11 +192,11 @@ public class MainWindow extends JFrame {
     }
 
     private void createStoreTable() {
+        this.currentGroup = null;
         String column[] = {"Name", "Number of products", "Description"};
         String info[][] = new String[this.store.numberOfGroups()][3];
         for (int i = 0; i < this.store.numberOfGroups(); i++) {
             try {
-                System.out.println("Querying "+i+"th group");
                 info[i] = new String[] {this.store.get(i).getName(),
                         "" + this.store.get(i).getNumberOfProducts(),
                         this.store.get(i).getDescription()};
@@ -117,6 +205,13 @@ public class MainWindow extends JFrame {
             }
         }
         this.table = new JTable(info, column);
+        DefaultTableModel tableModel = new DefaultTableModel(info, column) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        table.setModel(tableModel);
         this.scroll = new JScrollPane(this.table);
         this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);

@@ -143,12 +143,12 @@ public class ProductActions extends JFrame {
 
     private void addToFile(Group gr, Product pr) throws IOException{
         changeGroupSize(gr);
-        try{
+        try {
             FileWriter fStream = new FileWriter(gr.getFile(),true);
             BufferedWriter out = new BufferedWriter(fStream);
             out.write(pr.toString());
             out.close();
-        }catch (Exception e){
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
