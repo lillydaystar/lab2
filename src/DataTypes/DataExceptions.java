@@ -1,6 +1,16 @@
 package DataTypes;
 
-class IllegalFileFormatException extends Exception {
+public class DataExceptions extends Exception{
+    public DataExceptions() {
+        super();
+    }
+
+    public DataExceptions(String message) {
+        super(message);
+    }
+}
+
+class IllegalFileFormatException extends DataExceptions {
     IllegalFileFormatException(String message) {
         super(message);
     }
@@ -9,13 +19,13 @@ class IllegalFileFormatException extends Exception {
     }
 }
 
-class IncorrectProductException extends Exception {
+class IncorrectProductException extends DataExceptions {
     IncorrectProductException(String message) {
         super(message);
     }
 }
 
-class IncorrectGroupException extends Exception {
+class IncorrectGroupException extends DataExceptions {
     IncorrectGroupException(String message) {
         super(message);
     }

@@ -2,7 +2,17 @@ package Graphical;
 
 import javax.swing.*;
 
-class EmptyGroupsException extends Exception{
+public class GraphicalExceptions extends Exception{
+    public GraphicalExceptions() {
+        super();
+    }
+
+    public GraphicalExceptions(String message) {
+        super(message);
+    }
+}
+
+class EmptyGroupsException extends GraphicalExceptions{
 
     EmptyGroupsException(){}
 
@@ -12,7 +22,7 @@ class EmptyGroupsException extends Exception{
     }
 }
 
-class EmptyProductsException extends Exception{
+class EmptyProductsException extends GraphicalExceptions{
 
     EmptyProductsException(){}
 
@@ -22,7 +32,7 @@ class EmptyProductsException extends Exception{
     }
 }
 
-class IllegalInputFormat extends Exception{
+class IllegalInputFormat extends GraphicalExceptions{
     public IllegalInputFormat() {
         super();
     }
@@ -33,9 +43,16 @@ class IllegalInputFormat extends Exception{
     }
 }
 
-class GroupExistException extends Exception{
+class GroupExistException extends GraphicalExceptions{
     public GroupExistException(String message) {
         super(message);
         JOptionPane.showMessageDialog(null, "Така група вже існує","Error",  JOptionPane.WARNING_MESSAGE);
+    }
+}
+
+class ProductExistException extends GraphicalExceptions{
+    public ProductExistException(String message) {
+        super(message);
+        JOptionPane.showMessageDialog(null, "Такий товар вже існує","Error",  JOptionPane.WARNING_MESSAGE);
     }
 }

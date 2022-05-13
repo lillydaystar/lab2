@@ -33,8 +33,10 @@ public class Store implements Iterable<Group> {
     }
 
     public void remove(int position) throws IncorrectGroupException {
-        if (position >= 0 && position < this.groups.size())
+        if (position >= 0 && position < this.groups.size()) {
+            this.groups.get(position).setFile(null);
             this.groups.remove(position);
+        }
         else throw new IncorrectGroupException("Group position is out of bounds for this store");
     }
 
@@ -48,7 +50,15 @@ public class Store implements Iterable<Group> {
     }
 
     public boolean fileExist(File file){
-        return groups.stream().map(Group::getFile).anyMatch(f -> f.equals(file));
+        return groups.stream().map(Group::getFile).anyMatch(f -> f.getName().equals(file.getName()));
+    }
+
+    public boolean ProductExist(String productName){
+        return groups.stream()
+                .flatMap(gr -> gr.getProducts().stream())
+                .map(Product::getName)
+                .anyMatch(name -> name
+                        .equals(productName));
     }
 
     public boolean isEmpty() {
