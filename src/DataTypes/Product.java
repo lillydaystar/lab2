@@ -1,7 +1,6 @@
 package DataTypes;
 
 import Graphical.MainWindow;
-import sun.applet.Main;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -13,8 +12,7 @@ public class Product {
     double price;
     String maker;
     int count;
-    String regex = "([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє ,]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / (\\d+(.[0-9]+)?) грн / (\\d+(.[0-9]+)?)";
-    MainWindow window;
+    String regex = "([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє.%\\d ,]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / (\\d+(.[0-9]+)?) грн / (\\d+(.[0-9]+)?)";
 
     Product() {}
 
@@ -101,7 +99,7 @@ public class Product {
     }
 
     public double getDCount() {
-        return (double) count;
+        return count;
     }
 
     public void setCount(double count){

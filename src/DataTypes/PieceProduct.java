@@ -1,6 +1,5 @@
 package DataTypes;
 
-import Graphical.MainWindow;
 
 public class PieceProduct extends Product {
 
