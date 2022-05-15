@@ -65,6 +65,34 @@ public class Store implements Iterable<Group> {
         return this.groups.isEmpty();
     }
 
+    public void sortByName(boolean fromAtoZ) {
+        this.groups.sort((fst, snd) -> compare(fst.getName(), snd.getName())*(fromAtoZ ? 1 : -1));
+    }
+
+    public void sortByNumberOfProducts(boolean fromReachToPoor) {
+        this.groups.sort((fst, snd) -> {
+            if (fst.getNumberOfProducts() > snd.getNumberOfProducts())
+                return fromReachToPoor ? 1 : -1;
+            else if (fst.getNumberOfProducts() < snd.getNumberOfProducts())
+                return fromReachToPoor ? -1 : 1;
+            else return 0;
+        });
+    }
+
+    private static int compare(String fst, String snd) {
+        for (int i = 0; i < Math.min(fst.length(), snd.length()); i++) {
+            if (fst.charAt(i) < snd.charAt(i))
+                return -1;
+            else if (fst.charAt(i) > snd.charAt(i))
+                return 1;
+        }
+        if (fst.length() < snd.length())
+            return -1;
+        if (snd.length() > snd.length())
+            return 1;
+        return 0;
+    }
+
     @Override
     public Iterator<Group> iterator() {
         return new Iterator<Group>() {

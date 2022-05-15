@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Product {
+
     String name;
     String description;
     double price;
@@ -12,7 +13,7 @@ public class Product {
     int count;
     String regex = "([A-Za-zА-ЯІЇЄа-іїє ]+) / ([A-Za-zА-ЯІЇЄа-іїє ,]+) / ([A-Za-zА-ЯІЇЄа-іїє ]+) / (\\d+(.[0-9]+)?) грн / (\\d+)";
 
-    Product(){}
+    Product() {};
 
     public Product(String name, String description, String maker, double price, int count){
         this.name = name;
@@ -95,4 +96,3 @@ public class Product {
         this.count = count;
     }
 }
-
