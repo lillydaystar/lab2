@@ -2,11 +2,12 @@ package DataTypes;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Group {
+public class Group implements Iterable<Product> {
 
     //File format:
     //
@@ -134,5 +135,20 @@ public class Group {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public Iterator<Product> iterator() {
+        return new Iterator<Product>() {
+            int position = 0;
+            @Override
+            public boolean hasNext() {
+                return position < products.size();
+            }
+            @Override
+            public Product next() {
+                return products.get(position++);
+            }
+        };
     }
 }

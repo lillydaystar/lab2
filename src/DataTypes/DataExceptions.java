@@ -30,3 +30,21 @@ class IncorrectGroupException extends DataExceptions {
         super(message);
     }
 }
+
+class IncorrectPriceException extends DataExceptions {
+    IncorrectPriceException(String message) {
+        super(message);
+    }
+    IncorrectPriceException() {
+        super();
+    }
+}
+
+class IncorrectCountException extends DataExceptions {
+    IncorrectCountException(String message) {
+        super(message);
+    }
+    IncorrectCountException() {
+        super();
+    }
+}

@@ -12,6 +12,10 @@ public class MainWindow extends JFrame {
 
     private final static int STORE = 1;
     private final static int GROUP = 2;
+
+    final static int WIDTH = 800;
+    final static int HEIGHT = 600;
+
     private JTable table;
     private JPanel topPanel;
     private JPanel taskPanel;
@@ -23,7 +27,8 @@ public class MainWindow extends JFrame {
     public MainWindow(){
         super("Product manager");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setSize(800, 600);
+        this.setSize(WIDTH, HEIGHT);
+        this.setLocation(Tools.getCenterLocation(WIDTH, HEIGHT));
         this.store = new Store();
         createTopPanel();
         this.setVisible(true);
@@ -35,10 +40,10 @@ public class MainWindow extends JFrame {
             if (this.topPanel != null) this.remove(topPanel);
             if (this.table != null) this.table = null;
             this.list = new Vector<>(this.store.numberOfGroups() + 2);
+            list.add("<none>");
             list.add("Store view");
             for (int i = 0; i < this.store.numberOfGroups(); i++)
                 list.add(this.store.get(i).getName());
-            list.add("<none>");
 
             this.topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
             JButton inputButton = new JButton("Input");
@@ -47,14 +52,14 @@ public class MainWindow extends JFrame {
             viewCombo.addActionListener(select -> {
                 try {
                     int selectedIndex = viewCombo.getSelectedIndex();
-                    if (selectedIndex == 0) {
+                    if (list.get(selectedIndex).equals("Store view")) {
                         if (this.scroll != null) this.remove(scroll);
                         if (this.taskPanel != null) this.remove(this.taskPanel);
                         createStoreTable();
                         createTaskPanel(STORE);
                         this.revalidate();
                         this.repaint();
-                    } else if (selectedIndex == list.size() - 1) {
+                    } else if (list.get(selectedIndex).equals("<none>")) {
                         if (this.table != null) {
                             if (this.scroll != null) this.remove(scroll);
                             if (this.taskPanel != null) this.remove(this.taskPanel);
@@ -63,7 +68,7 @@ public class MainWindow extends JFrame {
                             this.repaint();
                         }
                     } else {
-                        Group selectedGroup = this.store.get(selectedIndex - 1);
+                        Group selectedGroup = this.store.get(selectedIndex - 2);
                         if (this.scroll != null) this.remove(scroll);
                         if (this.taskPanel != null) this.remove(this.taskPanel);
                         createGroupTable(selectedGroup);
@@ -113,31 +118,43 @@ public class MainWindow extends JFrame {
             if (choise == GROUP) {
                 this.currentGroup.sortByName(true);
                 refreshGroup();
+            } else {
+                this.store.sortByName(true);
+                refreshStore();
             }
         });
         zaSortButton.addActionListener(press -> {
             if (choise == GROUP) {
                 this.currentGroup.sortByName(false);
                 refreshGroup();
+            } else {
+                this.store.sortByName(false);
+                refreshStore();
             }
         });
         incrSortButton.addActionListener(press -> {
             if (choise == GROUP) {
                 this.currentGroup.sortByPrice(true);
                 refreshGroup();
+            } else {
+                this.store.sortByNumberOfProducts(true);
+                refreshStore();
             }
         });
         decrSortButton.addActionListener(press -> {
             if (choise == GROUP) {
                 this.currentGroup.sortByPrice(false);
                 refreshGroup();
+            } else {
+                this.store.sortByNumberOfProducts(false);
+                refreshStore();
             }
         });
         addButton.addActionListener(press -> {
 
         });
         findButton.addActionListener(press -> {
-
+            new SearchWindow(choise == GROUP, this.currentGroup, this.store);
         });
         removeButton.addActionListener(press -> {
 
@@ -163,6 +180,15 @@ public class MainWindow extends JFrame {
         if (this.taskPanel != null) this.remove(this.taskPanel);
         createGroupTable(this.currentGroup);
         createTaskPanel(GROUP);
+        this.revalidate();
+        this.repaint();
+    }
+
+    private void refreshStore() {
+        if (this.scroll != null) this.remove(scroll);
+        if (this.taskPanel != null) this.remove(this.taskPanel);
+        createStoreTable();
+        createTaskPanel(STORE);
         this.revalidate();
         this.repaint();
     }
