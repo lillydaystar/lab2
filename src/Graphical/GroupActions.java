@@ -11,48 +11,52 @@ public class GroupActions extends JFrame {
     JPanel panel;
     MainWindow window;
 
-    GroupActions(MainWindow window){
+    GroupActions(MainWindow window, Action action){
         setTitle("Група");
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         this.window = window;
-        init(window);
+        init();
+        switch (action) {
+            case ADD:
+                addGroup();
+                break;
+            case DELETE:
+                try {
+                    if(window.store.isEmpty())
+                        throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
+                    deleteGroup();
+                } catch (EmptyGroupsException e) {
+                    this.dispose();
+                    e.printStackTrace();
+                }
+                break;
+            case EDIT:
+                try {
+                    if(window.store.isEmpty())
+                        throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
+                    editGroup();
+                } catch (EmptyGroupsException e) {
+                    e.printStackTrace();
+                    this.dispose();
+                }
+                break;
+        }
+
     }
 
-    private void init(MainWindow window) {
+    private void init() {
         setSize(600,300);
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
         setLocation(x,y);
-        panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        add(panel);
-        JButton add = new JButton("Додати");
-        JButton edit = new JButton("Редагувати");
-        JButton delete = new JButton("Видалити");
-        setObjectsFont(new JComponent[]{add,edit,delete});
-        add.addActionListener(press -> {
-            addGroup();
-        });
-
-        edit.addActionListener(press -> {
-            try {
-                editGroup();
-            } catch (EmptyGroupsException e) {
-                e.printStackTrace();
-            }
-        });
-
-        delete.addActionListener(press -> {
-            try {
-                deleteGroup();
-            } catch (EmptyGroupsException e) {
-                e.printStackTrace();
-            }
-        });
+        panel = new JPanel(new FlowLayout());
+        panel.setPreferredSize(new Dimension(90, 200));
+        add(panel, BorderLayout.CENTER);
+        this.setVisible(true);
     }
 
     private void addGroup() {
-        resetPanel();
         JButton fromFile = new JButton("Додати з файлу");
         JButton input = new JButton("Створити вручну");
         setObjectsFont(new JComponent[]{fromFile,input});
@@ -65,8 +69,6 @@ public class GroupActions extends JFrame {
             /*створення форми для введення групи вручну*/
             addGroupInput();
         });
-        revalidate();
-        repaint();
     }
 
     private void addGroupInput() {
@@ -80,7 +82,7 @@ public class GroupActions extends JFrame {
             try {
                 if (name.getText().isEmpty() || description.getText().isEmpty())
                     throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                if(window.store.fileExist(new File(name.getText()+".txt")))
+                if(window.store.fileExist(new File("Store//" + name.getText()+".txt")))
                     throw new GroupExistException("Група з такою назвою уже існує!");
                 try {
                     createGroupFile(name.getText(), description.getText());
@@ -100,7 +102,7 @@ public class GroupActions extends JFrame {
     }
 
     private void createGroupFile(String name, String description) throws IOException, DataExceptions {
-        File f = new File(name + ".txt");
+        File f = new File("Store//"+name + ".txt");
         FileWriter fw = new FileWriter(f);
         BufferedWriter writer = new BufferedWriter(fw);
         writer.write("Group '" + name + "' size 0 description '" + description + "'\n");
@@ -110,16 +112,14 @@ public class GroupActions extends JFrame {
         window.store.add(gr);
     }
 
-    private void deleteGroup() throws EmptyGroupsException{
-        if(window.store.isEmpty()) throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
-        resetPanel();
+    private void deleteGroup(){
         JComboBox<Group> viewGroups = new JComboBox<>();
         for (Group group : window.store) viewGroups.addItem(group);
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {
             try {
                 window.store.remove(viewGroups.getSelectedIndex());
-                File fileToDelete = new File(viewGroups.getSelectedItem() + ".txt");
+                File fileToDelete = new File("Store//" + viewGroups.getSelectedItem() + ".txt");
                 boolean delSuccessful = fileToDelete.delete();
                 if(!delSuccessful)
                     throw new Exception("Файл не видалено");
@@ -129,13 +129,9 @@ public class GroupActions extends JFrame {
             dispose();
         });
         setObjectsFont(new JComponent[]{viewGroups,submit});
-        revalidate();
-        repaint();
     }
 
-    private void editGroup() throws EmptyGroupsException{
-        if(window.store.isEmpty()) throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
-        resetPanel();
+    private void editGroup(){
         JCheckBox name = new JCheckBox("Назва");
         JCheckBox description = new JCheckBox("Опис");
         JComboBox<Group> viewGroups = new JComboBox<>();
@@ -152,8 +148,6 @@ public class GroupActions extends JFrame {
         });
         JComponent[] array = {viewGroups,name,description,b};
         setObjectsFont(array);
-        revalidate();
-        repaint();
     }
 
     private void editGroupParams(Group gr, boolean nameSelected, boolean descriptionSelected) {
@@ -180,7 +174,7 @@ public class GroupActions extends JFrame {
                 if(nameSelected){
                     if(finalName.getText().isEmpty())
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                    if(window.store.fileExist(new File(finalName.getText()+".txt")))
+                    if(window.store.fileExist(new File("Store//" + finalName.getText()+".txt")))
                         throw new GroupExistException("Група з такою назвою уже існує!");
                     n = finalName.getText();
                 } else n = gr.getName();
@@ -206,7 +200,7 @@ public class GroupActions extends JFrame {
 
     private void editFile(Group gr, String n, String d) throws IOException {
         File groupFile = gr.getFile();
-        File tempFile = new File("Temp.txt");
+        File tempFile = new File("Store//Temp.txt");
         BufferedReader reader = new BufferedReader(new FileReader(groupFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
 
@@ -224,7 +218,7 @@ public class GroupActions extends JFrame {
         writer.close();
 
         boolean successfulDel = groupFile.delete();
-        boolean renameTemp = tempFile.renameTo(new File(n + ".txt"));
+        boolean renameTemp = tempFile.renameTo(new File("Store//" + n + ".txt"));
         if(!successfulDel)
             throw new IOException("Temp file was not deleted!");
         if(!renameTemp)

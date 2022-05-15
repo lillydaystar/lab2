@@ -22,14 +22,14 @@ public class MainWindow extends JFrame {
     private JScrollPane scroll;
     private Vector<String> list;
     private Group currentGroup;
-    final Store store;
+    public static final Store store = new Store();
 
     public MainWindow(){
         super("Product manager");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(WIDTH, HEIGHT);
         this.setLocation(Tools.getCenterLocation(WIDTH, HEIGHT));
-        this.store = new Store();
+        //store = new Store();
         createTopPanel();
         this.setVisible(true);
     }
@@ -80,7 +80,9 @@ public class MainWindow extends JFrame {
                     e.printStackTrace();
                 }
             });
-            inputButton.addActionListener(press -> addInfo());
+            inputButton.addActionListener(press -> {
+                //addInfo();
+            });
             outputButton.addActionListener(press -> {
                 /* action listener for Output button */
             });
@@ -114,6 +116,8 @@ public class MainWindow extends JFrame {
         JButton findButton = new JButton(choise == GROUP ? "Select" : "Find");
         JButton removeButton = new JButton(choise == GROUP ? "Remove" : "Delete");
         JButton editButton = new JButton(choise == GROUP ? "Edit" : "Change");
+        JButton resetTable = new JButton("Reset");
+        JButton fillButton = new JButton("Bring/Sell");
         azSortButton.addActionListener(press -> {
             if (choise == GROUP) {
                 this.currentGroup.sortByName(true);
@@ -151,16 +155,60 @@ public class MainWindow extends JFrame {
             }
         });
         addButton.addActionListener(press -> {
-
+            if (choise == GROUP) {
+                try {
+                    productAction(Action.ADD, this.currentGroup);
+                } catch (EmptyGroupsException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                groupAction(Action.ADD);
+            }
         });
         findButton.addActionListener(press -> {
             new SearchWindow(choise == GROUP, this.currentGroup, this.store);
         });
         removeButton.addActionListener(press -> {
-
+            if (choise == GROUP) {
+                try {
+                    productAction(Action.DELETE, this.currentGroup);
+                } catch (EmptyGroupsException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                groupAction(Action.DELETE);
+            }
         });
         editButton.addActionListener(press -> {
-
+            if (choise == GROUP) {
+                try {
+                    productAction(Action.EDIT, this.currentGroup);
+                } catch (EmptyGroupsException e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+                groupAction(Action.EDIT);
+            }
+        });
+        fillButton.addActionListener(press -> {
+            try {
+                productAction(Action.FILL, this.currentGroup);
+            } catch (EmptyGroupsException e) {
+                e.printStackTrace();
+            }
+        });
+        resetTable.addActionListener(press -> {        //тимчасове!
+            if(choise == STORE) {
+                if (this.scroll != null) this.remove(scroll);
+                if (this.taskPanel != null) this.remove(this.taskPanel);
+                createStoreTable();
+                createTaskPanel(STORE);
+                this.revalidate();
+                this.repaint();
+            }else refreshGroup();
         });
         this.taskPanel.add(azSortButton);
         this.taskPanel.add(zaSortButton);
@@ -172,6 +220,10 @@ public class MainWindow extends JFrame {
         this.taskPanel.add(addButton);
         this.taskPanel.add(removeButton);
         this.taskPanel.add(editButton);
+        if(choise == GROUP){
+            this.taskPanel.add(fillButton);
+        }
+        this.taskPanel.add(resetTable);
         this.add(taskPanel, "East");
     }
 
@@ -195,12 +247,12 @@ public class MainWindow extends JFrame {
 
     private void createGroupTable(Group group) {
         this.currentGroup = group;
-        String column[] = {"Name", "Price", "Count", "Maker", "Description"};
-        String info[][] = new String[group.getNumberOfProducts()][5];
+        String[] column = {"Name", "Price", "Count", "Maker", "Description"};
+        String[][] info = new String[group.getNumberOfProducts()][5];
         for (int i = 0; i < group.getNumberOfProducts(); i++) {
             Product product = group.getProduct(i);
             info[i] = new String[] {product.getName(), ""+product.getPrice(),
-                                    ""+product.getCount()+" "+product.getEnding(),
+                                    ""+product.getDCount()+product.getEnding(),
                                     product.getMaker(), product.getDescription()};
         }
         this.table = new JTable(info, column);
@@ -219,8 +271,8 @@ public class MainWindow extends JFrame {
 
     private void createStoreTable() {
         this.currentGroup = null;
-        String column[] = {"Name", "Number of products", "Description"};
-        String info[][] = new String[this.store.numberOfGroups()][3];
+        String[] column = {"Name", "Number of products", "Description"};
+        String[][] info = new String[this.store.numberOfGroups()][3];
         for (int i = 0; i < this.store.numberOfGroups(); i++) {
             try {
                 info[i] = new String[] {this.store.get(i).getName(),
@@ -244,50 +296,16 @@ public class MainWindow extends JFrame {
         this.add(scroll);
     }
 
-    private void addInfo(){
-        JFrame choiceWindow = new JFrame("Choose an action");
-        JPanel choicePanel = new JPanel(null);
-        choiceWindow.setSize(500,200);
-        choiceWindow.setLocation(800,300);
-        choiceWindow.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-        choiceWindow.add(choicePanel);
-        choiceWindow.setVisible(true);
-        JLabel label = new JLabel("Оберіть, з чим бажаєте працювати: ");
-        JButton groupButton = new JButton("Група товарів");
-        JButton productButton = new JButton("Товар");
-
-        groupButton.setBounds(25,100,200,50);
-        productButton.setBounds(262,100,200,50);
-        label.setLocation(0,10);
-        label.setFont(new Font("Arial", Font.PLAIN,20));
-        label.setSize(500,30);
-        groupButton.addActionListener(press -> {
-            /* action listener for Group button */
-            choiceWindow.dispose();
-            groupAction();
-        });
-        productButton.addActionListener(press -> {
-            /* action listener for Product button */
-            choiceWindow.dispose();
-            try {
-                productAction();
-            } catch (EmptyGroupsException e) {
-                e.printStackTrace();
-            }
-        });
-        choicePanel.add(label);
-        choicePanel.add(groupButton);
-        choicePanel.add(productButton);
-    }
-
-    private void productAction() throws EmptyGroupsException{
+    private void productAction(Action choice, Group gr) throws EmptyGroupsException{
         if(store.isEmpty()) throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
-        JFrame action = new ProductActions(this);
-        action.setVisible(true);
+        /*JFrame action = */new ProductActions(this, this.currentGroup, choice);
     }
 
-    private void groupAction(){
-        JFrame action = new GroupActions(this);
-        action.setVisible(true);
+    private void groupAction(Action choice){
+        new GroupActions(this, choice);
     }
+}
+
+enum Action{
+    ADD, DELETE, EDIT, FILL
 }
