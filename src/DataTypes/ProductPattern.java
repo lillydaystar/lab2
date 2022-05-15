@@ -31,6 +31,7 @@ public class ProductPattern {
     }
 
     boolean satisfiesPrice(double price) throws IncorrectPriceException {
+        if (this.price.isEmpty()) return true;
         try {
             double patternPrice = Double.parseDouble(this.price);
             return patternPrice == price;
@@ -40,6 +41,7 @@ public class ProductPattern {
     }
 
     boolean satisfiesCount(double count) throws IncorrectCountException {
+        if (this.count.isEmpty()) return true;
         try {
             double patternCount = Double.parseDouble(this.count);
             return patternCount == count;
@@ -79,13 +81,11 @@ public class ProductPattern {
 
         boolean matches(Product product) {
             if (product instanceof LiquidProduct)
-                if (this.liquidAllowed)
-                    return this.liquidAllowed;
+                return this.liquidAllowed;
             else if (product instanceof WeightProduct)
-                if (this.weightAllowed)
-                    return this.weightAllowed;
+                return this.weightAllowed;
             else if (product instanceof PieceProduct)
-                    return this.pieceAllowed;
+                return this.pieceAllowed;
             return true;
         }
     }
