@@ -1,12 +1,12 @@
 package DataTypes;
 
-public class LiquidProduct extends Product {
+public class LiquidProduct extends DoubleProduct {
 
     LiquidProduct() {
         regex = super.regex + " л";
     }
 
-    public LiquidProduct(String name, String description, String maker, double price, int count) {
+    public LiquidProduct(String name, String description, String maker, double price, double count) {
         super(name, description, maker, price, count);
         regex = super.regex + " л";
     }
@@ -18,7 +18,7 @@ public class LiquidProduct extends Product {
 
     @Override
     LiquidProduct parseString(String s) {
-        Product father = super.parseString(s);
+        DoubleProduct father = super.parseString(s);
         if (father == null) return null;
         return new LiquidProduct(father.name, father.description, father.maker, father.price, father.count);
     }

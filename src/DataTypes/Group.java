@@ -27,7 +27,6 @@ public class Group implements Iterable<Product> {
      * from it.
      */
     public Group(File path) throws IOException, IllegalFileFormatException {
-        this.file = path;
         this.products = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(path));
         String nextString = reader.readLine();
@@ -39,15 +38,33 @@ public class Group implements Iterable<Product> {
         }
         while (nextString != null) {
             Product product = Product.parseProduct(nextString);
-            product = product.parseString(nextString);
-            this.products.add(product);
+            if(product != null)
+                product = product.parseString(nextString);
+            if(product != null) {     //якщо у файлі помилка в написанні групи або група вже існує, то програма поверне null
+                this.products.add(product);
+            }
             nextString = reader.readLine();
         }
         reader.close();
+        this.file = newGroupFile(path);
+        addProductToFile(products);
         System.out.println(products);
         System.out.println("Group "+this.name+" number "+this.getNumberOfProducts()+" description "+this.description);
-        if (numberOfProducts != this.products.size())
-            throw new IllegalFileFormatException("Expected "+numberOfProducts+" products, found "+this.products.size());
+        /*if (numberOfProducts != this.products.size())
+            throw new IllegalFileFormatException("Expected "+numberOfProducts+" products, found "+this.products.size());*/
+    }
+
+    private File newGroupFile(File path){
+        return new File("Store//" + path.getName());
+    }
+
+    private void addProductToFile(List<Product> products) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+        writer.write("Group '" + this.name + "' size " + this.getNumberOfProducts() + " description '" + this.description + "'\n");
+        for (Product product : products) {
+            writer.write(product.toString() + "\n");
+        }
+        writer.close();
     }
 
     public void add(Product newProduct) {

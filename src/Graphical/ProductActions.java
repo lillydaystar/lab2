@@ -13,47 +13,54 @@ public class ProductActions extends JFrame {
     JPanel panel;
     MainWindow window;
 
-    ProductActions(MainWindow window){
+    ProductActions(MainWindow window, Group gr, Action action){
         setTitle("Товар");
         this.window = window;
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
-        init(window);
+        init();
+        switch (action) {
+            case ADD:
+                addProduct(gr);
+                break;
+            case DELETE:
+                try {
+                    if(gr.getNumberOfProducts() == 0)
+                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+                    deleteProduct(gr);
+                } catch (EmptyProductsException e) {
+                    dispose();
+                    e.printStackTrace();
+                }
+                break;
+            case EDIT:
+                try {
+                    if(gr.getNumberOfProducts() == 0)
+                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+                    editProduct(gr);
+                } catch (EmptyProductsException e) {
+                    dispose();
+                    e.printStackTrace();
+                }
+                break;
+            case FILL:
+                try{
+                    if(gr.getNumberOfProducts() == 0)
+                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+                    chooseProduct(gr);
+                }catch (EmptyProductsException e) {
+                    dispose();
+                    e.printStackTrace();
+                }
+
+        }
     }
 
-    void init(MainWindow window) {
+    void init() {
         setSize(600,300);
         toCentre();
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         add(panel);
-        setVisible(true);
-
-        JComboBox<Group> viewGroups = new JComboBox<>();
-        for (Group group : window.store) viewGroups.addItem(group);
-
-        JButton add = new JButton("Додати");
-        JButton edit = new JButton("Редагувати");
-        JButton delete = new JButton("Видалити");
-
-        setObjectsFont(new JComponent[]{viewGroups,add,edit,delete});
-        add.addActionListener(press -> addProduct((Group) viewGroups.getSelectedItem()));
-
-        edit.addActionListener(press -> {
-            try {
-                if(viewGroups.getSelectedItem() == null) throw new NullPointerException();
-                editProduct((Group) viewGroups.getSelectedItem());
-            } catch (EmptyProductsException e) {
-                e.printStackTrace();
-            }
-        });
-
-        delete.addActionListener(press -> {
-            try {
-                if(viewGroups.getSelectedItem() == null) throw new NullPointerException();
-                deleteProduct((Group) viewGroups.getSelectedItem());
-            } catch (EmptyProductsException e) {
-                e.printStackTrace();
-            }
-        });
+        this.setVisible(true);
     }
 
     public void resetPanel() {
@@ -245,11 +252,12 @@ public class ProductActions extends JFrame {
                 }
 
                 try {
-                    editFile(gr, pr, n, p, d, m);
+                    String lineToEdit = pr.toString();
                     pr.setName(n);
                     pr.setPrice(p);
                     pr.setDescription(d);
                     pr.setMaker(m);
+                    editFile(gr, pr, lineToEdit);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -264,20 +272,21 @@ public class ProductActions extends JFrame {
         repaint();
     }
 
-    private void editFile(Group gr, Product pr, String n, double p, String d, String m) throws IOException {
-        File tempFile = new File("Temp.txt");
+    private void editFile(Group gr, Product pr, String lineToEdit) throws IOException {
+        File tempFile = new File("Store//Temp.txt");
         File inputFile = gr.getFile();
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-        String lineToEdit = pr.toString();
         String currentLine;
 
         while((currentLine = reader.readLine()) != null) {
             String trimmedLine = currentLine.trim();
             if(trimmedLine.equals(lineToEdit)){
-                String newPrice = String.valueOf(p);
+                String newPrice = String.valueOf(pr.getPrice());
                 if(newPrice.endsWith(".0")) newPrice = newPrice.substring(0,newPrice.length()-2);
-                currentLine = n + " / " + d + " / " + m + " / " + newPrice + " грн / " + pr.getCount() + pr.getEnding();
+                String newCount = String.valueOf(pr.getDCount());
+                if(newCount.endsWith(".0")) newCount = newCount.substring(0,newCount.length()-2);
+                currentLine = pr.getName() + " / " + pr.getDescription() + " / " + pr.getMaker() + " / " + newPrice + " грн / " + newCount + pr.getEnding();
             }
             writer.write(currentLine + "\n");
         }
@@ -287,8 +296,6 @@ public class ProductActions extends JFrame {
     }
 
     private void deleteProduct(Group gr) throws EmptyProductsException{
-        if(gr.getNumberOfProducts() == 0)
-            throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
         resetPanel();
         JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
@@ -317,7 +324,7 @@ public class ProductActions extends JFrame {
     private void deleteFromFile(Group gr, Product pr) throws IOException {
         changeGroupSize(gr);
         File inputFile = gr.getFile();
-        File tempFile = new File("Temp.txt");
+        File tempFile = new File("Store//Temp.txt");
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
         String lineToRemove = pr.toString();
@@ -335,7 +342,7 @@ public class ProductActions extends JFrame {
     private void rewriteFiles(File tempFile, File inputFile) throws IOException {
         String fileName = inputFile.getName();
         boolean successfulDel = inputFile.delete();
-        boolean renameTemp = tempFile.renameTo(new File(fileName));
+        boolean renameTemp = tempFile.renameTo(new File("Store//"+fileName));
         if(!successfulDel)
             throw new IOException("Temp file was not deleted!");
         if(!renameTemp)
@@ -344,7 +351,7 @@ public class ProductActions extends JFrame {
 
     private void changeGroupSize(Group gr) throws IOException {
         File inputFile = gr.getFile();
-        File tempFile = new File("Temp.txt");
+        File tempFile = new File("Store//Temp.txt");
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
         String groupLine = reader.readLine();
@@ -360,5 +367,118 @@ public class ProductActions extends JFrame {
         writer.close();
         reader.close();
         rewriteFiles(tempFile,inputFile);
+    }
+
+    private void chooseProduct(Group gr) {
+        JComboBox<Product> viewProducts = new JComboBox<>();
+        for (Product product : gr.getProducts()) viewProducts.addItem(product);
+        try {
+            viewProducts.addActionListener(selectPr -> {
+                resetPanel();
+                JButton add = new JButton("Додати");
+                JButton remove = new JButton("Списати");
+                Product pr = (Product) viewProducts.getSelectedItem();
+                JButton submit = new JButton("Submit");
+                JSpinner spinner = new JSpinner();
+                spinner.setFont(new Font("Arial", Font.PLAIN, 30));
+                final boolean[] choice = {false};
+                submit.addActionListener(sub -> {
+                    try {
+                        productSetCount(gr, pr, spinner.getValue(), choice[0]);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                });
+                submit.setFont(new Font("Arial", Font.PLAIN, 30));
+                add.addActionListener(press -> {
+                    resetPanel();
+                    spinner.setModel(model(pr,true));
+                    choice[0] = true;
+                    panel.add(spinner);
+                    this.panel.add(submit);
+                    revalidate();
+                    repaint();
+                });
+                remove.addActionListener(press -> {
+                    resetPanel();
+                    if(pr != null) {
+                        spinner.setModel(model(pr,false));
+                        choice[0] = false;
+                        panel.add(spinner);
+                        this.panel.add(submit);
+                    }
+                    revalidate();
+                    repaint();
+                });
+                panel.add(add);
+                panel.add(remove);
+
+                revalidate();
+                repaint();
+            });
+            panel.add(viewProducts);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        panel.add(viewProducts);
+    }
+
+    private void productSetCount(Group gr, Product pr, Object count, boolean choice) throws IOException {
+        dispose();
+        String lineToEdit = pr.toString();
+        String message = "";
+        int valueI;
+        double valueD;
+        if(pr instanceof PieceProduct){
+            valueI = (int) count;
+            if(choice) message = "Ви закупили товар на суму " + valueI*pr.getPrice() + " грн";
+            else{
+                message = "Ви продали товар на суму " + valueI*pr.getPrice() + " грн";
+                valueI*=(-1);
+            }
+            valueI = pr.getCount() + valueI;
+            pr.setCount(valueI);
+        }
+        else{
+            valueD = (double) count;
+            if(choice) message = "Ви закупили товар на суму " + valueD*pr.getPrice() + " грн";
+            else{
+                message = "Ви продали товар на суму " + valueD*pr.getPrice() + " грн";
+                valueD*=(-1);
+            }
+            valueD = pr.getDCount() + valueD;
+            pr.setCount(valueD);
+        }
+        JOptionPane.showMessageDialog(null, message, "Успішна операція", JOptionPane.INFORMATION_MESSAGE);
+        editFile(gr, pr, lineToEdit);
+    }
+
+    private SpinnerModel model(Product pr, boolean choice){
+
+        SpinnerModel model;
+        if(pr instanceof LiquidProduct || pr instanceof WeightProduct){
+            double max;
+            if(choice) max = 1000;
+            else max = pr.getDCount();
+            model = new SpinnerNumberModel(
+                    0.0,
+                    0.0,
+                    max,
+                    0.5
+            );
+        }
+        else{
+            int max;
+            if(choice) max = 1000;
+            else max = pr.getCount();
+            model = new SpinnerNumberModel(
+                    0,
+                    0,
+                    max,
+                    1
+            );
+        }
+        return model;
     }
 }
