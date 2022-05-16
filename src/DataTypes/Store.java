@@ -88,7 +88,7 @@ public class Store implements Iterable<Group> {
         }
         if (fst.length() < snd.length())
             return -1;
-        if (snd.length() > snd.length())
+        if (fst.length() > snd.length())
             return 1;
         return 0;
     }
@@ -106,5 +106,19 @@ public class Store implements Iterable<Group> {
                 return groups.get(position++);
             }
         };
+    }
+
+    public int totalProducts() {
+        int count = 0;
+        for (Group group : this)
+            count += group.getNumberOfProducts();
+        return count;
+    }
+
+    public double totalPrice() {
+        double price = 0;
+        for (Group group : this)
+            price += group.totalPrice();
+        return price;
     }
 }
