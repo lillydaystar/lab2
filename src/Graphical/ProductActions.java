@@ -25,7 +25,7 @@ public class ProductActions extends JFrame {
             case DELETE:
                 try {
                     if(gr.getNumberOfProducts() == 0)
-                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б один.");
                     deleteProduct(gr);
                 } catch (EmptyProductsException e) {
                     dispose();
@@ -35,7 +35,7 @@ public class ProductActions extends JFrame {
             case EDIT:
                 try {
                     if(gr.getNumberOfProducts() == 0)
-                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б один.");
                     editProduct(gr);
                 } catch (EmptyProductsException e) {
                     dispose();
@@ -45,7 +45,7 @@ public class ProductActions extends JFrame {
             case FILL:
                 try{
                     if(gr.getNumberOfProducts() == 0)
-                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+                        throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б один.");
                     chooseProduct(gr);
                 }catch (EmptyProductsException e) {
                     dispose();
@@ -95,7 +95,7 @@ public class ProductActions extends JFrame {
             try {
                 if (name.getText().isEmpty() || price.getText().isEmpty() || description.getText().isEmpty() || maker.getText().isEmpty())
                     throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                if(window.store.ProductExist(name.getText()))
+                if(MainWindow.store.ProductExist(name.getText()))
                     throw new ProductExistException("Такий товар уже існує!");
                 String n, d, m;
                 double p;
@@ -133,12 +133,12 @@ public class ProductActions extends JFrame {
             dispose();
         });
         JComponent[] array = {nameL,name,priceL,price,descriptionL,description,makerL,maker,type,submit};
-        setObjectsFont(array);
+        setObjectsFont(array,panel);
         revalidate();
         repaint();
     }
 
-    private void setObjectsFont(JComponent[] array) {
+    private void setObjectsFont(JComponent[] array, JPanel panel) {
         for (JComponent jComponent : array) {
             jComponent.setFont(new Font("Arial", Font.PLAIN, 20));
             panel.add(jComponent);
@@ -158,7 +158,7 @@ public class ProductActions extends JFrame {
     }
 
     private void editProduct(Group gr) throws EmptyProductsException {
-        if(gr.getNumberOfProducts() == 0) throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б одну.");
+        if(gr.getNumberOfProducts() == 0) throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б один.");
         resetPanel();
         JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
@@ -168,6 +168,7 @@ public class ProductActions extends JFrame {
         JCheckBox maker = new JCheckBox("Виробник");
 
         JButton b = new JButton("Submit");
+        JPanel checkPanel = new JPanel(new GridLayout(5,1));
         b.addActionListener(press -> {
             Product pr = (Product) viewProducts.getSelectedItem();
             if (pr != null) {
@@ -176,8 +177,14 @@ public class ProductActions extends JFrame {
                 throw new NullPointerException("Product argument in editProduct(Group gr) function is null!");
             }
         });
-        JComponent[] array = {viewProducts,name,price,description,maker,b};
-        setObjectsFont(array);
+        panel.add(viewProducts);
+        JComponent[] array = {/*viewProducts,*/name,price,description,maker,b};
+        for (JComponent jComponent : array) {
+            jComponent.setFont(new Font("Arial", Font.PLAIN, 20));
+            checkPanel.add(jComponent);
+        }
+        //setObjectsFont(array);
+        panel.add(checkPanel);
         revalidate();
         repaint();
     }
@@ -188,30 +195,36 @@ public class ProductActions extends JFrame {
         resetPanel();
         JLabel product = new JLabel(pr.toString());
         product.setFont(new Font("Arial", Font.PLAIN, 20));
+        this.setSize(product.getPreferredSize().width+30, 300);
         panel.add(product);
         JTextArea name = null;
         JTextArea price = null;
         JTextArea description = null;
         JTextArea maker = null;
+        JPanel checkPanel = new JPanel(new GridLayout(4,2));
         if(nameSelected){
             JLabel nameL = new JLabel("Редагуйте назву: ");
             name = new JTextArea(1, 8);
-            setObjectsFont(new JComponent[]{nameL, name});
+            //setObjectsFont(new JComponent[]{nameL, name});
+            setObjectsFont(new JComponent[]{nameL,name}, checkPanel);
         }
         if(priceSelected){
             JLabel priceL = new JLabel("Редагуйте ціну: ");
             price = new JTextArea(1, 5);
-            setObjectsFont(new JComponent[]{priceL, price});
+            //setObjectsFont(new JComponent[]{priceL, price});
+            setObjectsFont(new JComponent[]{priceL, price},checkPanel);
         }
         if(descrySelected){
             JLabel descriptionL = new JLabel("Редагуйте опис: ");
             description = new JTextArea(1, 10);
-            setObjectsFont(new JComponent[]{descriptionL, description});
+            //setObjectsFont(new JComponent[]{descriptionL, description});
+            setObjectsFont(new JComponent[]{descriptionL, description},checkPanel);
         }
         if(makerSelected){
             JLabel makerL = new JLabel("Редагуйте виробника: ");
             maker = new JTextArea(1, 8);
-            setObjectsFont(new JComponent[]{makerL, maker});
+            //setObjectsFont(new JComponent[]{makerL, maker});
+            setObjectsFont(new JComponent[]{makerL, maker},checkPanel);
         }
         JButton submit = new JButton("Submit");
         JTextArea finalName = name;
@@ -226,7 +239,7 @@ public class ProductActions extends JFrame {
                 else {
                     if(finalName.getText().isEmpty())
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                    if(window.store.ProductExist(finalName.getText()))
+                    if(MainWindow.store.ProductExist(finalName.getText()))
                         throw new ProductExistException("Такий товар уже існує!");
                     n = finalName.getText();
                 }
@@ -267,6 +280,7 @@ public class ProductActions extends JFrame {
             dispose();
         });
         submit.setFont(new Font("Arial", Font.PLAIN, 20));
+        panel.add(checkPanel);
         panel.add(submit);
         revalidate();
         repaint();
@@ -314,7 +328,7 @@ public class ProductActions extends JFrame {
             this.dispose();
         });
         JComponent[] array = {viewProducts,b};
-        setObjectsFont(array);
+        setObjectsFont(array,panel);
         b.setVisible(true);
         viewProducts.setVisible(true);
         revalidate();
@@ -355,7 +369,7 @@ public class ProductActions extends JFrame {
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
         String groupLine = reader.readLine();
-        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-z ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-z\\s]*)'");
+        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-zА-ЯІЇЄа-іїє ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-zА-ЯІЇЄа-іїє\\s]*)'");
         Matcher matcher = headerPattern.matcher(groupLine);
         if(matcher.matches())
             groupLine = "Group '" + matcher.group(1) + "' size " + gr.getNumberOfProducts() + " description '" + matcher.group(3) + "'";
@@ -380,7 +394,6 @@ public class ProductActions extends JFrame {
                 Product pr = (Product) viewProducts.getSelectedItem();
                 JButton submit = new JButton("Submit");
                 JSpinner spinner = new JSpinner();
-                spinner.setFont(new Font("Arial", Font.PLAIN, 30));
                 final boolean[] choice = {false};
                 submit.addActionListener(sub -> {
                     try {
@@ -390,13 +403,11 @@ public class ProductActions extends JFrame {
                     }
 
                 });
-                submit.setFont(new Font("Arial", Font.PLAIN, 30));
                 add.addActionListener(press -> {
                     resetPanel();
                     spinner.setModel(model(pr,true));
                     choice[0] = true;
-                    panel.add(spinner);
-                    this.panel.add(submit);
+                    setObjectsFont(new JComponent[]{spinner, submit},panel);
                     revalidate();
                     repaint();
                 });
@@ -405,29 +416,26 @@ public class ProductActions extends JFrame {
                     if(pr != null) {
                         spinner.setModel(model(pr,false));
                         choice[0] = false;
-                        panel.add(spinner);
-                        this.panel.add(submit);
+                        setObjectsFont(new JComponent[]{spinner, submit},panel);
                     }
                     revalidate();
                     repaint();
                 });
-                panel.add(add);
-                panel.add(remove);
-
+                setObjectsFont(new JButton[]{add, remove},panel);
                 revalidate();
                 repaint();
             });
-            panel.add(viewProducts);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        panel.add(viewProducts);
+        setObjectsFont(new JComboBox[]{viewProducts},panel);
     }
 
     private void productSetCount(Group gr, Product pr, Object count, boolean choice) throws IOException {
+        if((double) count == 0.0) return;
         dispose();
         String lineToEdit = pr.toString();
-        String message = "";
+        String message;
         int valueI;
         double valueD;
         if(pr instanceof PieceProduct){

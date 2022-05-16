@@ -22,7 +22,7 @@ public class GroupActions extends JFrame {
                 break;
             case DELETE:
                 try {
-                    if(window.store.isEmpty())
+                    if(MainWindow.store.isEmpty())
                         throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
                     deleteGroup();
                 } catch (EmptyGroupsException e) {
@@ -32,7 +32,7 @@ public class GroupActions extends JFrame {
                 break;
             case EDIT:
                 try {
-                    if(window.store.isEmpty())
+                    if(MainWindow.store.isEmpty())
                         throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
                     editGroup();
                 } catch (EmptyGroupsException e) {
@@ -82,7 +82,7 @@ public class GroupActions extends JFrame {
             try {
                 if (name.getText().isEmpty() || description.getText().isEmpty())
                     throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                if(window.store.fileExist(new File("Store//" + name.getText()+".txt")))
+                if(MainWindow.store.fileExist(new File("Store//" + name.getText()+".txt")))
                     throw new GroupExistException("Група з такою назвою уже існує!");
                 try {
                     createGroupFile(name.getText(), description.getText());
@@ -109,16 +109,16 @@ public class GroupActions extends JFrame {
         writer.close();
         fw.close();
         Group gr = new Group(f);
-        window.store.add(gr);
+        MainWindow.store.add(gr);
     }
 
     private void deleteGroup(){
         JComboBox<Group> viewGroups = new JComboBox<>();
-        for (Group group : window.store) viewGroups.addItem(group);
+        for (Group group : MainWindow.store) viewGroups.addItem(group);
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {
             try {
-                window.store.remove(viewGroups.getSelectedIndex());
+                MainWindow.store.remove(viewGroups.getSelectedIndex());
                 File fileToDelete = new File("Store//" + viewGroups.getSelectedItem() + ".txt");
                 boolean delSuccessful = fileToDelete.delete();
                 if(!delSuccessful)
@@ -135,12 +135,12 @@ public class GroupActions extends JFrame {
         JCheckBox name = new JCheckBox("Назва");
         JCheckBox description = new JCheckBox("Опис");
         JComboBox<Group> viewGroups = new JComboBox<>();
-        for (Group group : window.store) viewGroups.addItem(group);
+        for (Group group : MainWindow.store) viewGroups.addItem(group);
         JButton b = new JButton("Submit");
         b.addActionListener(press -> {
             Group gr;
             try {
-                gr = window.store.get(viewGroups.getSelectedIndex());
+                gr = MainWindow.store.get(viewGroups.getSelectedIndex());
                 editGroupParams(gr, name.isSelected(), description.isSelected());
             } catch (DataExceptions e) {
                 e.printStackTrace();
@@ -174,7 +174,7 @@ public class GroupActions extends JFrame {
                 if(nameSelected){
                     if(finalName.getText().isEmpty())
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                    if(window.store.fileExist(new File("Store//" + finalName.getText()+".txt")))
+                    if(MainWindow.store.fileExist(new File("Store//" + finalName.getText()+".txt")))
                         throw new GroupExistException("Група з такою назвою уже існує!");
                     n = finalName.getText();
                 } else n = gr.getName();
@@ -243,11 +243,11 @@ public class GroupActions extends JFrame {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             if (file != null) {
                 try {
-                    if(window.store.fileExist(file)){
+                    if(MainWindow.store.fileExist(file)){
                         throw new GroupExistException("Така група вже існує!");
                     }
                     Group group = new Group(file);
-                    window.store.add(group);
+                    MainWindow.store.add(group);
                 }
                 catch (Exception e) {
                     e.printStackTrace();

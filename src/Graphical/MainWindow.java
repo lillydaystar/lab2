@@ -39,15 +39,29 @@ public class MainWindow extends JFrame {
             if (this.scroll != null) this.remove(scroll);
             if (this.topPanel != null) this.remove(topPanel);
             if (this.table != null) this.table = null;
-            this.list = new Vector<>(this.store.numberOfGroups() + 2);
+            this.list = new Vector<>(store.numberOfGroups() + 2);
             list.add("<none>");
             list.add("Store view");
-            for (int i = 0; i < this.store.numberOfGroups(); i++)
-                list.add(this.store.get(i).getName());
+            for (int i = 0; i < store.numberOfGroups(); i++)
+                list.add(store.get(i).getName());
 
             this.topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            JButton inputButton = new JButton("Input");
-            JButton outputButton = new JButton("Output");
+            JButton storeButton = new JButton("Store price");
+            JButton groupButton = new JButton("Group price");
+            storeButton.addActionListener(press -> {
+                try {
+                    showStorePrice();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            groupButton.addActionListener(press -> {
+                if(currentGroup == null){
+                    JOptionPane.showMessageDialog(null,"Для підрахунку ціни всіх товарів у групі, виберіть групу у списку", "ERROR", JOptionPane.ERROR_MESSAGE);
+                }else
+                    showGroupPrice();
+
+            });
             JComboBox<String> viewCombo = new JComboBox<>(list);
             viewCombo.addActionListener(select -> {
                 try {
@@ -68,7 +82,7 @@ public class MainWindow extends JFrame {
                             this.repaint();
                         }
                     } else {
-                        Group selectedGroup = this.store.get(selectedIndex - 2);
+                        Group selectedGroup = store.get(selectedIndex - 2);
                         if (this.scroll != null) this.remove(scroll);
                         if (this.taskPanel != null) this.remove(this.taskPanel);
                         createGroupTable(selectedGroup);
@@ -80,15 +94,9 @@ public class MainWindow extends JFrame {
                     e.printStackTrace();
                 }
             });
-            inputButton.addActionListener(press -> {
-                //addInfo();
-            });
-            outputButton.addActionListener(press -> {
-                /* action listener for Output button */
-            });
-            topPanel.add(inputButton);
+            topPanel.add(storeButton);
             topPanel.add(viewCombo);
-            topPanel.add(outputButton);
+            topPanel.add(groupButton);
             this.add(this.topPanel, "North");
             this.revalidate();
             this.repaint();
@@ -100,8 +108,8 @@ public class MainWindow extends JFrame {
         }
     }
 
-    private void createTaskPanel(int choise) {
-        if (choise != GROUP && choise != STORE)
+    private void createTaskPanel(int choice) {
+        if (choice != GROUP && choice != STORE)
             return;
         if (this.taskPanel != null) this.remove(taskPanel);
         GridLayout layout = new GridLayout(10, 1);
@@ -112,52 +120,52 @@ public class MainWindow extends JFrame {
         JButton zaSortButton = new JButton("z->a");
         JButton incrSortButton = new JButton("Incr");
         JButton decrSortButton = new JButton("Decr");
-        JButton addButton = new JButton(choise == GROUP ? "Add" : "New");
-        JButton findButton = new JButton(choise == GROUP ? "Select" : "Find");
-        JButton removeButton = new JButton(choise == GROUP ? "Remove" : "Delete");
-        JButton editButton = new JButton(choise == GROUP ? "Edit" : "Change");
+        JButton addButton = new JButton(choice == GROUP ? "Add" : "New");
+        JButton findButton = new JButton(choice == GROUP ? "Select" : "Find");
+        JButton removeButton = new JButton(choice == GROUP ? "Remove" : "Delete");
+        JButton editButton = new JButton(choice == GROUP ? "Edit" : "Change");
         JButton resetTable = new JButton("Reset");
         JButton fillButton = new JButton("Bring/Sell");
         azSortButton.addActionListener(press -> {
-            if (choise == GROUP) {
+            if (choice == GROUP) {
                 this.currentGroup.sortByName(true);
                 refreshGroup();
             } else {
-                this.store.sortByName(true);
+                store.sortByName(true);
                 refreshStore();
             }
         });
         zaSortButton.addActionListener(press -> {
-            if (choise == GROUP) {
+            if (choice == GROUP) {
                 this.currentGroup.sortByName(false);
                 refreshGroup();
             } else {
-                this.store.sortByName(false);
+                store.sortByName(false);
                 refreshStore();
             }
         });
         incrSortButton.addActionListener(press -> {
-            if (choise == GROUP) {
+            if (choice == GROUP) {
                 this.currentGroup.sortByPrice(true);
                 refreshGroup();
             } else {
-                this.store.sortByNumberOfProducts(true);
+                store.sortByNumberOfProducts(true);
                 refreshStore();
             }
         });
         decrSortButton.addActionListener(press -> {
-            if (choise == GROUP) {
+            if (choice == GROUP) {
                 this.currentGroup.sortByPrice(false);
                 refreshGroup();
             } else {
-                this.store.sortByNumberOfProducts(false);
+                store.sortByNumberOfProducts(false);
                 refreshStore();
             }
         });
         addButton.addActionListener(press -> {
-            if (choise == GROUP) {
+            if (choice == GROUP) {
                 try {
-                    productAction(Action.ADD, this.currentGroup);
+                    productAction(Action.ADD);
                 } catch (EmptyGroupsException e) {
                     e.printStackTrace();
                 }
@@ -169,9 +177,9 @@ public class MainWindow extends JFrame {
         findButton.addActionListener(press ->
                 new SearchWindow(choise == GROUP, this.currentGroup, this.store));
         removeButton.addActionListener(press -> {
-            if (choise == GROUP) {
+            if (choice == GROUP) {
                 try {
-                    productAction(Action.DELETE, this.currentGroup);
+                    productAction(Action.DELETE);
                 } catch (EmptyGroupsException e) {
                     e.printStackTrace();
                 }
@@ -181,9 +189,9 @@ public class MainWindow extends JFrame {
             }
         });
         editButton.addActionListener(press -> {
-            if (choise == GROUP) {
+            if (choice == GROUP) {
                 try {
-                    productAction(Action.EDIT, this.currentGroup);
+                    productAction(Action.EDIT);
                 } catch (EmptyGroupsException e) {
                     e.printStackTrace();
                 }
@@ -194,24 +202,19 @@ public class MainWindow extends JFrame {
         });
         fillButton.addActionListener(press -> {
             try {
-                productAction(Action.FILL, this.currentGroup);
+                productAction(Action.FILL);
             } catch (EmptyGroupsException e) {
                 e.printStackTrace();
             }
         });
         resetTable.addActionListener(press -> {        //тимчасове!
-            if(choise == STORE) {
-                if (this.scroll != null) this.remove(scroll);
-                if (this.taskPanel != null) this.remove(this.taskPanel);
-                createStoreTable();
-                createTaskPanel(STORE);
-                this.revalidate();
-                this.repaint();
+            if(choice == STORE) {
+                refreshStore();
             }else refreshGroup();
         });
         this.taskPanel.add(azSortButton);
         this.taskPanel.add(zaSortButton);
-        if (choise == GROUP) {
+        if (choice == GROUP) {
             this.taskPanel.add(incrSortButton);
             this.taskPanel.add(decrSortButton);
         }
@@ -219,11 +222,38 @@ public class MainWindow extends JFrame {
         this.taskPanel.add(addButton);
         this.taskPanel.add(removeButton);
         this.taskPanel.add(editButton);
-        if(choise == GROUP){
+        if(choice == GROUP){
             this.taskPanel.add(fillButton);
         }
         this.taskPanel.add(resetTable);
         this.add(taskPanel, "East");
+    }
+
+    private void showStorePrice() throws Exception {
+        int price = 0;
+        if(!store.isEmpty()){
+            for(int i=0; i<store.numberOfGroups(); i++){
+                for(int j=0; j<store.get(i).getNumberOfProducts(); j++){
+                    double p = store.get(i).getProducts().get(j).getPrice();
+                    double c = store.get(i).getProducts().get(j).getDCount();
+                    price+= p*c;
+                }
+            }
+        }
+        JOptionPane.showMessageDialog(null,"Загальна ціна товарів на складі - " + price + " грн", "Store price", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showGroupPrice(){
+        int price = 0;
+        if(currentGroup.getNumberOfProducts() != 0){
+            for(int j=0; j<this.currentGroup.getNumberOfProducts(); j++){
+                double p = currentGroup.getProducts().get(j).getPrice();
+                double c = currentGroup.getProducts().get(j).getDCount();
+                price+= p*c;
+            }
+        }
+        JOptionPane.showMessageDialog(null,"Загальна ціна товарів у групі '"+currentGroup.toString()+"' - " + price + " грн", "Group price", JOptionPane.INFORMATION_MESSAGE);
+
     }
 
     private void refreshGroup() {
@@ -279,6 +309,7 @@ public class MainWindow extends JFrame {
                 info[i] = new String[] {this.store.get(i).getName(),
                         "" + this.store.get(i).getNumberOfProducts(),
                         this.store.get(i).getDescription(), this.store.get(i).totalPrice()+""};
+
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
@@ -300,9 +331,9 @@ public class MainWindow extends JFrame {
         this.add(scroll);
     }
 
-    private void productAction(Action choice, Group gr) throws EmptyGroupsException{
+    private void productAction(Action choice) throws EmptyGroupsException{
         if(store.isEmpty()) throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
-        /*JFrame action = */new ProductActions(this, this.currentGroup, choice);
+        new ProductActions(this, this.currentGroup, choice);
     }
 
     private void groupAction(Action choice){

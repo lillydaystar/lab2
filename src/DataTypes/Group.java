@@ -14,7 +14,7 @@ public class Group implements Iterable<Product> {
     //Group '<name>' size <size> description '<...>'
     //...products...
 
-    private List<Product> products;
+    private final List<Product> products;
     private String name;
     private String description;
     private File file;
@@ -30,10 +30,9 @@ public class Group implements Iterable<Product> {
         this.products = new ArrayList<>();
         BufferedReader reader = new BufferedReader(new FileReader(path));
         String nextString = reader.readLine();
-        int numberOfProducts;
         if (nextString == null) throw new IllegalFileFormatException();
         else {
-            numberOfProducts = parseHeader(nextString);
+            parseHeader(nextString);
             nextString = reader.readLine();
         }
         while (nextString != null) {
@@ -50,8 +49,6 @@ public class Group implements Iterable<Product> {
 //        addProductToFile(products);
         System.out.println(products);
         System.out.println("Group "+this.name+" number "+this.getNumberOfProducts()+" description "+this.description);
-        /*if (numberOfProducts != this.products.size())
-            throw new IllegalFileFormatException("Expected "+numberOfProducts+" products, found "+this.products.size());*/
     }
 
     private File newGroupFile(File path){
@@ -125,14 +122,13 @@ public class Group implements Iterable<Product> {
         });
     }
 
-    private int parseHeader(String header) throws IllegalFileFormatException {
-        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-z ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-z\\s]*)'");
+    private void parseHeader(String header) throws IllegalFileFormatException {
+        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-zА-ЯІЇЄа-іїє ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-zА-ЯІЇЄа-іїє\\s]*)'");
         Matcher matcher = headerPattern.matcher(header);
         if (!matcher.matches()) throw new IllegalFileFormatException("Incorrect header format");
         this.name = matcher.group(1);
         int numberOfProducts = Integer.parseInt(matcher.group(2));
         this.description = matcher.group(3);
-        return numberOfProducts;
     }
 
     private static int compare(String fst, String snd) {
