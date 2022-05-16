@@ -8,6 +8,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.List;
 import java.util.Vector;
 
 public class MainWindow extends JFrame {
@@ -24,6 +25,7 @@ public class MainWindow extends JFrame {
     private JPanel taskPanel;
     private JScrollPane scroll;
     private Vector<String> list;
+    private List<Product> tableContext;
     private Group currentGroup;
     public static final Store store = new Store();
 
@@ -80,6 +82,7 @@ public class MainWindow extends JFrame {
                                 if (this.scroll != null) this.remove(scroll);
                                 if (this.taskPanel != null) this.remove(this.taskPanel);
                                 this.currentGroup = null;
+                                this.tableContext = null;
                                 this.revalidate();
                                 this.repaint();
                             }
@@ -137,7 +140,7 @@ public class MainWindow extends JFrame {
                 store.sortByName(true);
                 refreshStore();
             }else{
-                store.sortByProductsName(true);
+                Store.sortByName(this.tableContext, true);
                 try {
                     refreshProductsStore();
                 } catch (Exception e) {
@@ -153,7 +156,7 @@ public class MainWindow extends JFrame {
                 store.sortByName(false);
                 refreshStore();
             }else{
-                store.sortByProductsName(false);
+                Store.sortByName(this.tableContext, false);
                 try {
                     refreshProductsStore();
                 } catch (Exception e) {
@@ -169,7 +172,7 @@ public class MainWindow extends JFrame {
                 store.sortByNumberOfProducts(true);
                 refreshStore();
             }else{
-                store.sortAllByPrice(true);
+                Store.sortByPrice(this.tableContext, true);
                 try {
                     refreshProductsStore();
                 } catch (Exception e) {
@@ -185,7 +188,7 @@ public class MainWindow extends JFrame {
                 store.sortByNumberOfProducts(false);
                 refreshStore();
             }else{
-                store.sortAllByPrice(false);
+                Store.sortByPrice(this.tableContext, false);
                 try {
                     refreshProductsStore();
                 } catch (Exception e) {
@@ -277,7 +280,7 @@ public class MainWindow extends JFrame {
         this.repaint();
     }
 
-    private void refreshStore() {
+    void refreshStore() {
         if (this.scroll != null) this.remove(scroll);
         if (this.taskPanel != null) this.remove(this.taskPanel);
         createStoreTable();
@@ -287,10 +290,28 @@ public class MainWindow extends JFrame {
     }
 
     private void refreshProductsStore() throws Exception {
-        if (this.scroll != null) this.remove(scroll);
-        if (this.taskPanel != null) this.remove(this.taskPanel);
-        createProductsTable();
-        createTaskPanel(PRODUCTS);
+        this.remove(scroll);
+        this.currentGroup = null;
+        String[] column = {"Назва", "Ціна (грн)", "Кількість", "Виробник", "Опис","Група"};
+
+        String[][] info = new String[this.tableContext.size() + 1][5];
+        for (int i = 0; i < this.tableContext.size(); i++) {
+            Product product = this.tableContext.get(i);
+            info[i] = new String[]{product.getName(), "" + product.getPrice(),
+                    "" + product.getDCount() + product.getEnding(),
+                    product.getMaker(), product.getDescription(), product.getGroup().getName()};
+        }
+        int totalPrice =0;
+        for(int i=0; i<store.numberOfGroups(); i++){
+            totalPrice += store.get(i).totalPrice();
+        }
+        info[info.length - 1] = new String[] {"Всього: "+this.tableContext.size()+" товарів"
+                , totalPrice+"", "", "", ""};
+        this.table = defaultTable(info,column);
+        this.scroll = new JScrollPane(this.table);
+        this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.add(scroll);
         this.revalidate();
         this.repaint();
     }
@@ -339,12 +360,14 @@ public class MainWindow extends JFrame {
     }
 
     private void createProductsTable() throws Exception {
+        this.tableContext = null;
         this.currentGroup = null;
+        this.tableContext = store.getProducts();
         String[] column = {"Назва", "Ціна (грн)", "Кількість", "Виробник", "Опис","Група"};
 
         String[][] info = new String[store.numberOfAllProducts() + 1][5];
-        for (int i = 0; i < store.getProducts().size(); i++) {
-            Product product = store.getProducts().get(i);
+        for (int i = 0; i < this.tableContext.size(); i++) {
+            Product product = this.tableContext.get(i);
             info[i] = new String[]{product.getName(), "" + product.getPrice(),
                     "" + product.getDCount() + product.getEnding(),
                     product.getMaker(), product.getDescription(), product.getGroup().getName()};
@@ -353,12 +376,13 @@ public class MainWindow extends JFrame {
         for(int i=0; i<store.numberOfGroups(); i++){
             totalPrice += store.get(i).totalPrice();
         }
-        info[info.length - 1] = new String[] {"Всього: "+store.numberOfAllProducts()+" товарів"
+        info[info.length - 1] = new String[] {"Всього: "+this.tableContext.size()+" товарів"
                 , totalPrice+"", "", "", ""};
         this.table = defaultTable(info,column);
         this.scroll = new JScrollPane(this.table);
         this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
         this.add(scroll);
     }
 
