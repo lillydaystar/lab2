@@ -88,7 +88,7 @@ public class ProductActions extends JFrame {
         JTextArea maker = new JTextArea(1, 8);
         JComboBox<String> type = new JComboBox<>();
         type.addItem("Цілісний(шт)");
-        type.addItem("Сипучий(кг)");
+        type.addItem("Ваговий(кг)");
         type.addItem("Рідкий(л)");
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {

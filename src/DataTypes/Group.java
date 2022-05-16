@@ -48,8 +48,6 @@ public class Group implements Iterable<Product> {
         reader.close();
         this.file = newGroupFile(path);
         addProductToFile(products);
-        System.out.println(products);
-        System.out.println("Group "+this.name+" number "+this.getNumberOfProducts()+" description "+this.description);
     }
 
     private File newGroupFile(File path){
@@ -128,7 +126,6 @@ public class Group implements Iterable<Product> {
         Matcher matcher = headerPattern.matcher(header);
         if (!matcher.matches()) throw new IllegalFileFormatException("Incorrect header format");
         this.name = matcher.group(1);
-        int numberOfProducts = Integer.parseInt(matcher.group(2));
         this.description = matcher.group(3);
     }
 

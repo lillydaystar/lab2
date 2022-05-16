@@ -115,11 +115,7 @@ public class Store implements Iterable<Group> {
             else if (fst.charAt(i) > snd.charAt(i))
                 return 1;
         }
-        if (fst.length() < snd.length())
-            return -1;
-        if (fst.length() > snd.length())
-            return 1;
-        return 0;
+        return Integer.compare(fst.length(), snd.length());
     }
 
     @Override

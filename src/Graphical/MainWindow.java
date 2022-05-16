@@ -3,12 +3,10 @@ package Graphical;
 import DataTypes.Group;
 import DataTypes.Product;
 import DataTypes.Store;
-import javafx.scene.control.TableRow;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.util.Vector;
 
@@ -34,7 +32,6 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(WIDTH, HEIGHT);
         this.setLocation(Tools.getCenterLocation(WIDTH, HEIGHT));
-        //store = new Store();
         createTopPanel();
         this.setVisible(true);
     }
@@ -44,7 +41,7 @@ public class MainWindow extends JFrame {
             if (this.scroll != null) this.remove(scroll);
             if (this.topPanel != null) this.remove(topPanel);
             if (this.table != null) this.table = null;
-            this.list = new Vector<>(store.numberOfGroups() + 2);
+            this.list = new Vector<>(store.numberOfGroups() + 3);
             list.add("<none>");
             list.add("Store view");
             list.add("All products");
@@ -52,20 +49,8 @@ public class MainWindow extends JFrame {
                 list.add(store.get(i).getName());
 
             this.topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-            JButton storeButton = new JButton("Store price");
-            JButton groupButton = new JButton("Group price");
-            storeButton.addActionListener(press -> {
-                try {
-                    showStorePrice();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
-            groupButton.addActionListener(press -> {
-                if(currentGroup == null){
-                    JOptionPane.showMessageDialog(null,"Для підрахунку ціни всіх товарів у групі, виберіть групу у списку", "ERROR", JOptionPane.ERROR_MESSAGE);
-                }else
-                    showGroupPrice();
+            JButton helpButton = new JButton("Help");
+            helpButton.addActionListener(press -> {
 
             });
             JComboBox<String> viewCombo = new JComboBox<>(list);
@@ -113,9 +98,8 @@ public class MainWindow extends JFrame {
                     e.printStackTrace();
                 }
             });
-            topPanel.add(storeButton);
             topPanel.add(viewCombo);
-            topPanel.add(groupButton);
+            topPanel.add(helpButton);
             this.add(this.topPanel, "North");
             this.revalidate();
             this.repaint();
@@ -283,32 +267,6 @@ public class MainWindow extends JFrame {
         this.add(taskPanel, "East");
     }
 
-    private void showStorePrice() throws Exception {
-        int price = 0;
-        if(!store.isEmpty()){
-            for(int i=0; i<store.numberOfGroups(); i++){
-                for(int j=0; j<store.get(i).getNumberOfProducts(); j++){
-                    double p = store.get(i).getProducts().get(j).getPrice();
-                    double c = store.get(i).getProducts().get(j).getDCount();
-                    price+= p*c;
-                }
-            }
-        }
-        JOptionPane.showMessageDialog(null,"Загальна ціна товарів на складі - " + price + " грн", "Store price", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private void showGroupPrice(){
-        int price = 0;
-        if(currentGroup.getNumberOfProducts() != 0){
-            for(int j=0; j<this.currentGroup.getNumberOfProducts(); j++){
-                double p = currentGroup.getProducts().get(j).getPrice();
-                double c = currentGroup.getProducts().get(j).getDCount();
-                price+= p*c;
-            }
-        }
-        JOptionPane.showMessageDialog(null,"Загальна ціна товарів у групі '"+currentGroup.toString()+"' - " + price + " грн", "Group price", JOptionPane.INFORMATION_MESSAGE);
-
-    }
 
     private void refreshGroup() {
         if (this.scroll != null) this.remove(scroll);
