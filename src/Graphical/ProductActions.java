@@ -177,13 +177,13 @@ public class ProductActions extends JFrame {
                 throw new NullPointerException("Product argument in editProduct(Group gr) function is null!");
             }
         });
-        panel.add(viewProducts);
-        JComponent[] array = {/*viewProducts,*/name,price,description,maker,b};
-        for (JComponent jComponent : array) {
-            jComponent.setFont(new Font("Arial", Font.PLAIN, 20));
-            checkPanel.add(jComponent);
+        if(viewProducts.getPreferredSize().width > this.getWidth()) {
+            this.setSize(viewProducts.getPreferredSize().width + 30, 300);
+            toCentre();
         }
-        //setObjectsFont(array);
+        panel.add(viewProducts);
+        JComponent[] array = {name,price,description,maker,b};
+        setObjectsFont(array, checkPanel);
         panel.add(checkPanel);
         revalidate();
         repaint();
@@ -196,6 +196,7 @@ public class ProductActions extends JFrame {
         JLabel product = new JLabel(pr.toString());
         product.setFont(new Font("Arial", Font.PLAIN, 20));
         this.setSize(product.getPreferredSize().width+30, 300);
+        toCentre();
         panel.add(product);
         JTextArea name = null;
         JTextArea price = null;
@@ -205,25 +206,21 @@ public class ProductActions extends JFrame {
         if(nameSelected){
             JLabel nameL = new JLabel("Редагуйте назву: ");
             name = new JTextArea(1, 8);
-            //setObjectsFont(new JComponent[]{nameL, name});
             setObjectsFont(new JComponent[]{nameL,name}, checkPanel);
         }
         if(priceSelected){
             JLabel priceL = new JLabel("Редагуйте ціну: ");
             price = new JTextArea(1, 5);
-            //setObjectsFont(new JComponent[]{priceL, price});
             setObjectsFont(new JComponent[]{priceL, price},checkPanel);
         }
         if(descrySelected){
             JLabel descriptionL = new JLabel("Редагуйте опис: ");
             description = new JTextArea(1, 10);
-            //setObjectsFont(new JComponent[]{descriptionL, description});
             setObjectsFont(new JComponent[]{descriptionL, description},checkPanel);
         }
         if(makerSelected){
             JLabel makerL = new JLabel("Редагуйте виробника: ");
             maker = new JTextArea(1, 8);
-            //setObjectsFont(new JComponent[]{makerL, maker});
             setObjectsFont(new JComponent[]{makerL, maker},checkPanel);
         }
         JButton submit = new JButton("Submit");
@@ -313,7 +310,10 @@ public class ProductActions extends JFrame {
         resetPanel();
         JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
-
+        if(viewProducts.getPreferredSize().width > this.getWidth()){
+            this.setSize(viewProducts.getPreferredSize().width+30, 300);
+            toCentre();
+        }
         JButton b = new JButton("Submit");
         b.addActionListener(press -> {
             Product pr = (Product) viewProducts.getSelectedItem();

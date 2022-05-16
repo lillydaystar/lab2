@@ -3,8 +3,12 @@ package Graphical;
 import DataTypes.Group;
 import DataTypes.Product;
 import DataTypes.Store;
+import javafx.scene.control.TableRow;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import java.awt.*;
 import java.util.Vector;
 
@@ -12,6 +16,7 @@ public class MainWindow extends JFrame {
 
     private final static int STORE = 1;
     private final static int GROUP = 2;
+    private final static int PRODUCTS = 3;
 
     private final static int WIDTH = 800;
     private final static int HEIGHT = 600;
@@ -42,6 +47,7 @@ public class MainWindow extends JFrame {
             this.list = new Vector<>(store.numberOfGroups() + 2);
             list.add("<none>");
             list.add("Store view");
+            list.add("All products");
             for (int i = 0; i < store.numberOfGroups(); i++)
                 list.add(store.get(i).getName());
 
@@ -66,29 +72,42 @@ public class MainWindow extends JFrame {
             viewCombo.addActionListener(select -> {
                 try {
                     int selectedIndex = viewCombo.getSelectedIndex();
-                    if (list.get(selectedIndex).equals("Store view")) {
-                        if (this.scroll != null) this.remove(scroll);
-                        if (this.taskPanel != null) this.remove(this.taskPanel);
-                        createStoreTable();
-                        createTaskPanel(STORE);
-                        this.revalidate();
-                        this.repaint();
-                    } else if (list.get(selectedIndex).equals("<none>")) {
-                        if (this.table != null) {
+                    switch (list.get(selectedIndex)) {
+                        case "Store view":
+                            if (this.scroll != null) this.remove(scroll);
+                            if (this.taskPanel != null) this.remove(this.taskPanel);
+                            createStoreTable();
+                            createTaskPanel(STORE);
+                            this.revalidate();
+                            this.repaint();
+                            break;
+                        case "All products":
                             if (this.scroll != null) this.remove(scroll);
                             if (this.taskPanel != null) this.remove(this.taskPanel);
                             this.currentGroup = null;
+                            createProductsTable();
+                            createTaskPanel(PRODUCTS);
                             this.revalidate();
                             this.repaint();
-                        }
-                    } else {
-                        Group selectedGroup = store.get(selectedIndex - 2);
-                        if (this.scroll != null) this.remove(scroll);
-                        if (this.taskPanel != null) this.remove(this.taskPanel);
-                        createGroupTable(selectedGroup);
-                        createTaskPanel(GROUP);
-                        this.revalidate();
-                        this.repaint();
+                            break;
+                        case "<none>":
+                            if (this.table != null) {
+                                if (this.scroll != null) this.remove(scroll);
+                                if (this.taskPanel != null) this.remove(this.taskPanel);
+                                this.currentGroup = null;
+                                this.revalidate();
+                                this.repaint();
+                            }
+                            break;
+                        default:
+                            Group selectedGroup = store.get(selectedIndex - 3);
+                            if (this.scroll != null) this.remove(scroll);
+                            if (this.taskPanel != null) this.remove(this.taskPanel);
+                            createGroupTable(selectedGroup);
+                            createTaskPanel(GROUP);
+                            this.revalidate();
+                            this.repaint();
+                            break;
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -109,7 +128,7 @@ public class MainWindow extends JFrame {
     }
 
     private void createTaskPanel(int choice) {
-        if (choice != GROUP && choice != STORE)
+        if (choice != GROUP && choice != STORE && choice != PRODUCTS)
             return;
         if (this.taskPanel != null) this.remove(taskPanel);
         GridLayout layout = new GridLayout(10, 1);
@@ -130,36 +149,64 @@ public class MainWindow extends JFrame {
             if (choice == GROUP) {
                 this.currentGroup.sortByName(true);
                 refreshGroup();
-            } else {
+            } else if(choice == STORE){
                 store.sortByName(true);
                 refreshStore();
+            }else{
+                store.sortByProductsName(true);
+                try {
+                    refreshProductsStore();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         zaSortButton.addActionListener(press -> {
             if (choice == GROUP) {
                 this.currentGroup.sortByName(false);
                 refreshGroup();
-            } else {
+            } else if(choice == STORE){
                 store.sortByName(false);
                 refreshStore();
+            }else{
+                store.sortByProductsName(false);
+                try {
+                    refreshProductsStore();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         incrSortButton.addActionListener(press -> {
             if (choice == GROUP) {
                 this.currentGroup.sortByPrice(true);
                 refreshGroup();
-            } else {
+            } else if(choice == STORE){
                 store.sortByNumberOfProducts(true);
                 refreshStore();
+            }else{
+                store.sortAllByPrice(true);
+                try {
+                    refreshProductsStore();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         decrSortButton.addActionListener(press -> {
             if (choice == GROUP) {
                 this.currentGroup.sortByPrice(false);
                 refreshGroup();
-            } else {
+            } else if(choice == STORE){
                 store.sortByNumberOfProducts(false);
                 refreshStore();
+            }else{
+                store.sortAllByPrice(false);
+                try {
+                    refreshProductsStore();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
         addButton.addActionListener(press -> {
@@ -175,7 +222,7 @@ public class MainWindow extends JFrame {
             }
         });
         findButton.addActionListener(press ->
-                new SearchWindow(choise == GROUP, this.currentGroup, this.store));
+                new SearchWindow(choice == GROUP, this.currentGroup, store));
         removeButton.addActionListener(press -> {
             if (choice == GROUP) {
                 try {
@@ -210,11 +257,18 @@ public class MainWindow extends JFrame {
         resetTable.addActionListener(press -> {        //тимчасове!
             if(choice == STORE) {
                 refreshStore();
-            }else refreshGroup();
+            }else if(choice == GROUP) refreshGroup();
+            else {
+                try {
+                    refreshProductsStore();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         });
         this.taskPanel.add(azSortButton);
         this.taskPanel.add(zaSortButton);
-        if (choice == GROUP) {
+        if (choice == GROUP || choice == PRODUCTS) {
             this.taskPanel.add(incrSortButton);
             this.taskPanel.add(decrSortButton);
         }
@@ -274,9 +328,18 @@ public class MainWindow extends JFrame {
         this.repaint();
     }
 
+    private void refreshProductsStore() throws Exception {
+        if (this.scroll != null) this.remove(scroll);
+        if (this.taskPanel != null) this.remove(this.taskPanel);
+        createProductsTable();
+        createTaskPanel(PRODUCTS);
+        this.revalidate();
+        this.repaint();
+    }
+
     private void createGroupTable(Group group) {
         this.currentGroup = group;
-        String[] column = {"Name", "Price", "Count", "Maker", "Description"};
+        String[] column = {"Назва", "Ціна (грн)", "Кількість", "Виробник", "Опис"};
         String[][] info = new String[group.getNumberOfProducts() + 1][5];
         for (int i = 0; i < group.getNumberOfProducts(); i++) {
             Product product = group.getProduct(i);
@@ -286,14 +349,7 @@ public class MainWindow extends JFrame {
         }
         info[info.length - 1] = new String[] {"Всього: "+group.getNumberOfProducts()+" товарів"
                 , group.totalPrice()+"", "", "", ""};
-        this.table = new JTable(info, column);
-        DefaultTableModel tableModel = new DefaultTableModel(info, column) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
-        table.setModel(tableModel);
+        this.table = defaultTable(info,column);
         this.scroll = new JScrollPane(this.table);
         this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -303,12 +359,12 @@ public class MainWindow extends JFrame {
     private void createStoreTable() {
         this.currentGroup = null;
         String[] column = {"Назва", "Кількість продуктів", "Опис", "Загальна вартість"};
-        String[][] info = new String[this.store.numberOfGroups()+1][4];
-        for (int i = 0; i < this.store.numberOfGroups(); i++) {
+        String[][] info = new String[store.numberOfGroups()+1][4];
+        for (int i = 0; i < store.numberOfGroups(); i++) {
             try {
-                info[i] = new String[] {this.store.get(i).getName(),
-                        "" + this.store.get(i).getNumberOfProducts(),
-                        this.store.get(i).getDescription(), this.store.get(i).totalPrice()+""};
+                info[i] = new String[] {store.get(i).getName(),
+                        "" + store.get(i).getNumberOfProducts(),
+                        store.get(i).getDescription(), store.get(i).totalPrice()+""};
 
             } catch (Exception e) {
                 System.out.println(e.getMessage());
@@ -317,7 +373,39 @@ public class MainWindow extends JFrame {
         info[info.length - 1] = new String[] {"Всього: "+store.numberOfGroups()+" груп",
                 store.totalProducts()+" продуктів", "",
                 store.totalPrice()+" грн"};
-        this.table = new JTable(info, column);
+        this.table = defaultTable(info,column);
+        this.scroll = new JScrollPane(this.table);
+        this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+        this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        this.add(scroll);
+    }
+
+    private void createProductsTable() throws Exception {
+        this.currentGroup = null;
+        String[] column = {"Назва", "Ціна (грн)", "Кількість", "Виробник", "Опис","Група"};
+
+        String[][] info = new String[store.numberOfAllProducts() + 1][5];
+        for (int i = 0; i < store.getProducts().size(); i++) {
+            Product product = store.getProducts().get(i);
+            info[i] = new String[]{product.getName(), "" + product.getPrice(),
+                    "" + product.getDCount() + product.getEnding(),
+                    product.getMaker(), product.getDescription(), product.getGroup().getName()};
+        }
+        int totalPrice =0;
+        for(int i=0; i<store.numberOfGroups(); i++){
+            totalPrice += store.get(i).totalPrice();
+        }
+        info[info.length - 1] = new String[] {"Всього: "+store.numberOfAllProducts()+" товарів"
+                , totalPrice+"", "", "", ""};
+        this.table = defaultTable(info,column);
+        this.scroll = new JScrollPane(this.table);
+        this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.add(scroll);
+    }
+
+    private JTable defaultTable(String[][] info, String[] column){
+        JTable table = new JTable(info, column);
         DefaultTableModel tableModel = new DefaultTableModel(info, column) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -325,10 +413,19 @@ public class MainWindow extends JFrame {
             }
         };
         table.setModel(tableModel);
-        this.scroll = new JScrollPane(this.table);
-        this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        this.add(scroll);
+
+        table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer()
+        {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+            {
+                final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                c.setBackground(row == info.length-1 ? new Color(134,231,82) : Color.WHITE);
+                return c;
+            }
+        });
+
+        return table;
     }
 
     private void productAction(Action choice) throws EmptyGroupsException{

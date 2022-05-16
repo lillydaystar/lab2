@@ -4,10 +4,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Store implements Iterable<Group> {
 
     private final List<Group> groups;
+
+    private final ArrayList<Product> products = new ArrayList<>();
 
     public Store(ArrayList<Group> groups) {
         this.groups = groups;
@@ -19,11 +22,18 @@ public class Store implements Iterable<Group> {
 
     public void add(Group group) {
         this.groups.add(group);
+        products.addAll(group.getProducts());
     }
 
     public int numberOfGroups() {
         return this.groups.size();
     }
+
+    public int numberOfAllProducts(){
+        return products.size();
+    }
+
+    public ArrayList<Product> getProducts(){return this.products;}
 
     public Group get(int number) throws IncorrectGroupException {
         if (number >= 0 && number < this.groups.size())
@@ -75,6 +85,25 @@ public class Store implements Iterable<Group> {
                 return fromReachToPoor ? 1 : -1;
             else if (fst.getNumberOfProducts() < snd.getNumberOfProducts())
                 return fromReachToPoor ? -1 : 1;
+            else return 0;
+        });
+    }
+
+    public void sortByProductsName(boolean fromAtoZ){
+        this.products.sort((fst, snd) -> compare(fst.getName(), snd.getName()) * (fromAtoZ ? 1 : -1));
+    }
+
+    public void sortAllByGroups(boolean fromAtoZ){
+        this.products
+                .sort((fst, snd) -> compare(fst.getGroup().getName(), snd.getGroup().getName())*(fromAtoZ ? 1 : -1));
+    }
+
+    public void sortAllByPrice(boolean fromCheapToExpensive) {
+        this.products.sort((fst, snd) -> {
+            if (fst.price > snd.price)
+                return fromCheapToExpensive ? 1 : -1;
+            else if (fst.price < snd.price)
+                return fromCheapToExpensive ? -1 : 1;
             else return 0;
         });
     }

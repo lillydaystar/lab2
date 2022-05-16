@@ -41,12 +41,13 @@ public class Group implements Iterable<Product> {
                 product = product.parseString(nextString);
             if(product != null) {     //якщо у файлі помилка в написанні групи або група вже існує, то програма поверне null
                 this.products.add(product);
+                product.setGroup(this);
             }
             nextString = reader.readLine();
         }
         reader.close();
         this.file = newGroupFile(path);
-//        addProductToFile(products);
+        addProductToFile(products);
         System.out.println(products);
         System.out.println("Group "+this.name+" number "+this.getNumberOfProducts()+" description "+this.description);
     }

@@ -12,6 +12,7 @@ public class Product {
     double price;
     String maker;
     int count;
+    Group group;
     String regex = "([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє.%\\d ,]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / (\\d+(.[0-9]+)?) грн / (\\d+(.[0-9]+)?)";
 
     Product() {}
@@ -106,6 +107,13 @@ public class Product {
         setCount((int) count);
     }
 
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
+    }
 }
 
 class DoubleProduct extends Product{
