@@ -45,7 +45,7 @@ public class GroupActions extends JFrame {
     }
 
     private void init() {
-        setSize(600,300);
+        setSize(300,200);
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
         int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
@@ -59,7 +59,7 @@ public class GroupActions extends JFrame {
     private void addGroup() {
         JButton fromFile = new JButton("Додати з файлу");
         JButton input = new JButton("Створити вручну");
-        setObjectsFont(new JComponent[]{fromFile,input});
+        setObjectsFont(new JComponent[]{fromFile,input},panel);
         fromFile.addActionListener(press -> {
             addFile();
             dispose();
@@ -77,6 +77,11 @@ public class GroupActions extends JFrame {
         JTextArea name = new JTextArea(1, 10);
         JLabel descriptionL = new JLabel("Опис: ");
         JTextArea description = new JTextArea(1, 10);
+        description.setLineWrap(true);
+        description.setWrapStyleWord(true);
+        GridLayout layout = new GridLayout(2,2);
+        layout.setVgap(10);
+        JPanel paramsPanel = new JPanel(layout);
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {
             try {
@@ -95,8 +100,10 @@ public class GroupActions extends JFrame {
             }
             dispose();
         });
-        JComponent[] array = {nameLabel,name,descriptionL,description,submit};
-        setObjectsFont(array);
+        JComponent[] array = {nameLabel,name,descriptionL,description};
+        setObjectsFont(array,paramsPanel);
+        panel.add(paramsPanel);
+        setObjectsFont(new JComponent[]{submit},panel);
         revalidate();
         repaint();
         this.window.refreshStore();
@@ -115,6 +122,7 @@ public class GroupActions extends JFrame {
     }
 
     private void deleteGroup(){
+        JLabel label = new JLabel("Оберіть групу, яку хочете видалити: ");
         JComboBox<Group> viewGroups = new JComboBox<>();
         for (Group group : MainWindow.store) viewGroups.addItem(group);
         JButton submit = new JButton("Submit");
@@ -129,11 +137,17 @@ public class GroupActions extends JFrame {
                 e.printStackTrace();
             }
             dispose();
+            this.window.refreshStore();
         });
-        setObjectsFont(new JComponent[]{viewGroups,submit});
+        setObjectsFont(new JComponent[]{label,viewGroups,submit},panel);
+        this.setSize(label.getPreferredSize().width+30, 200);
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((int)(dimension.getWidth() - this.getWidth()) / 2,(int)(dimension.getHeight() - this.getHeight()) / 2);
     }
 
     private void editGroup(){
+        JLabel label1 = new JLabel("Оберіть групу, яку хочете редагувати: ");
+        JLabel label2 = new JLabel("Оберіть параметри для редагування: ");
         JCheckBox name = new JCheckBox("Назва");
         JCheckBox description = new JCheckBox("Опис");
         JComboBox<Group> viewGroups = new JComboBox<>();
@@ -148,24 +162,35 @@ public class GroupActions extends JFrame {
                 e.printStackTrace();
             }
         });
-        JComponent[] array = {viewGroups,name,description,b};
-        setObjectsFont(array);
+        JComponent[] array = {label1,viewGroups,label2,name,description,b};
+        setObjectsFont(array,panel);
+        this.setSize(label1.getPreferredSize().width+30, 200);
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((int)(dimension.getWidth() - this.getWidth()) / 2,(int)(dimension.getHeight() - this.getHeight()) / 2);
     }
 
     private void editGroupParams(Group gr, boolean nameSelected, boolean descriptionSelected) {
+        if(!nameSelected && !descriptionSelected){
+            dispose();
+            return;
+        }
         resetPanel();
-
         JTextArea name = null;
         JTextArea description = null;
+        GridLayout layout = new GridLayout(nameSelected && descriptionSelected ? 2 : 1, 2);
+        layout.setVgap(10);
+        JPanel paramsPanel = new JPanel(layout);
         if(nameSelected){
             JLabel nameL = new JLabel("Редагуйте назву: ");
             name = new JTextArea(1, 8);
-            setObjectsFont(new JComponent[]{nameL, name});
+            setObjectsFont(new JComponent[]{nameL, name},paramsPanel);
         }
         if(descriptionSelected){
             JLabel descriptionL = new JLabel("Редагуйте опис: ");
-            description = new JTextArea(1, 10);
-            setObjectsFont(new JComponent[]{descriptionL, description});
+            description = new JTextArea(1, 15);
+            description.setLineWrap(true);
+            description.setWrapStyleWord(true);
+            setObjectsFont(new JComponent[]{descriptionL, description},paramsPanel);
         }
         JButton submit = new JButton("Submit");
         JTextArea finalName = name;
@@ -188,13 +213,16 @@ public class GroupActions extends JFrame {
 
                 editFile(gr, n, d);
                 gr.setName(n);
+                gr.setFile(new File("Store//"+n+".txt"));
                 gr.setDescription(d);
             }catch(IllegalInputFormat | IOException | GroupExistException e){
                 e.printStackTrace();
             }
             dispose();
+            this.window.refreshStore();
         });
         submit.setFont(new Font("Arial", Font.PLAIN, 20));
+        panel.add(paramsPanel);
         panel.add(submit);
         revalidate();
         repaint();
@@ -230,6 +258,11 @@ public class GroupActions extends JFrame {
     public void resetPanel() {
         remove(panel);
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        this.setSize(500,300);
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        int x = (int) ((dimension.getWidth() - this.getWidth()) / 2);
+        int y = (int) ((dimension.getHeight() - this.getHeight()) / 2);
+        setLocation(x,y);
         this.add(panel);
     }
 
@@ -259,7 +292,7 @@ public class GroupActions extends JFrame {
         }
     }
 
-    private void setObjectsFont(JComponent[] array) {
+    private void setObjectsFont(JComponent[] array, JPanel panel) {
         for (JComponent jComponent : array) {
             jComponent.setFont(new Font("Arial", Font.PLAIN, 20));
             panel.add(jComponent);

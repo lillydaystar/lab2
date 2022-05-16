@@ -78,14 +78,20 @@ public class ProductActions extends JFrame {
 
     private void addProduct(Group gr){
         resetPanel();
+        GridLayout layout = new GridLayout(5,2);
+        layout.setVgap(10);
+        JPanel paramsPanel = new JPanel(layout);
         JLabel nameL = new JLabel("Назва: ");
         JTextArea name = new JTextArea(1, 8);
         JLabel priceL = new JLabel("Ціна: ");
         JTextArea price = new JTextArea(1, 5);
         JLabel descriptionL = new JLabel("Опис: ");
-        JTextArea description = new JTextArea(1, 10);
+        JTextArea description = new JTextArea(1, 15);
+        description.setLineWrap(true);
+        description.setWrapStyleWord(true);
         JLabel makerL = new JLabel("Виробник: ");
         JTextArea maker = new JTextArea(1, 8);
+        JLabel typeL = new JLabel("Тип продукту: ");
         JComboBox<String> type = new JComboBox<>();
         type.addItem("Цілісний(шт)");
         type.addItem("Ваговий(кг)");
@@ -114,7 +120,7 @@ public class ProductActions extends JFrame {
                         case "Цілісний(шт)":
                             newPr = new PieceProduct(n, d, m, p, 0);
                             break;
-                        case "Сипучий(кг)":
+                        case "Ваговий(кг)":
                             newPr = new WeightProduct(n, d, m, p, 0);
                             break;
                         case "Рідкий(л)":
@@ -132,8 +138,10 @@ public class ProductActions extends JFrame {
             }
             dispose();
         });
-        JComponent[] array = {nameL,name,priceL,price,descriptionL,description,makerL,maker,type,submit};
-        setObjectsFont(array,panel);
+        JComponent[] array = {nameL,name,priceL,price,descriptionL,description,makerL,maker,typeL,type};
+        setObjectsFont(array,paramsPanel);
+        panel.add(paramsPanel);
+        setObjectsFont(new JComponent[]{submit},panel);
         revalidate();
         repaint();
     }
@@ -160,6 +168,8 @@ public class ProductActions extends JFrame {
     private void editProduct(Group gr) throws EmptyProductsException {
         if(gr.getNumberOfProducts() == 0) throw new EmptyProductsException("Жодного товару не існує, будь ласка, створіть або додайте хоча б один.");
         resetPanel();
+        JLabel label1 = new JLabel("Оберіть товар, який хочете редагувати: ");
+        JLabel label2 = new JLabel("Оберіть параметри для редагування: ");
         JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
         JCheckBox name = new JCheckBox("Назва");
@@ -182,9 +192,13 @@ public class ProductActions extends JFrame {
             toCentre();
         }
         panel.add(viewProducts);
+        setObjectsFont(new JComponent[]{label1,viewProducts},panel);
         JComponent[] array = {name,price,description,maker,b};
         setObjectsFont(array, checkPanel);
+        setObjectsFont(new JComponent[]{label2},panel);
         panel.add(checkPanel);
+        this.setSize(viewProducts.getPreferredSize().width+30, 300);
+        toCentre();
         revalidate();
         repaint();
     }
@@ -195,14 +209,16 @@ public class ProductActions extends JFrame {
         resetPanel();
         JLabel product = new JLabel(pr.toString());
         product.setFont(new Font("Arial", Font.PLAIN, 20));
-        this.setSize(product.getPreferredSize().width+30, 300);
+        this.setSize(product.getPreferredSize().width+30, 400);
         toCentre();
         panel.add(product);
         JTextArea name = null;
         JTextArea price = null;
         JTextArea description = null;
         JTextArea maker = null;
-        JPanel checkPanel = new JPanel(new GridLayout(4,2));
+        GridLayout layout = new GridLayout(4, 2);
+        layout.setVgap(10);
+        JPanel checkPanel = new JPanel(layout);
         if(nameSelected){
             JLabel nameL = new JLabel("Редагуйте назву: ");
             name = new JTextArea(1, 8);
@@ -215,7 +231,9 @@ public class ProductActions extends JFrame {
         }
         if(descrySelected){
             JLabel descriptionL = new JLabel("Редагуйте опис: ");
-            description = new JTextArea(1, 10);
+            description = new JTextArea(1, 15);
+            description.setLineWrap(true);
+            description.setWrapStyleWord(true);
             setObjectsFont(new JComponent[]{descriptionL, description},checkPanel);
         }
         if(makerSelected){
@@ -308,6 +326,7 @@ public class ProductActions extends JFrame {
 
     private void deleteProduct(Group gr) throws EmptyProductsException{
         resetPanel();
+        JLabel label = new JLabel("Оберіть товар, який хочете видалити: ");
         JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
         if(viewProducts.getPreferredSize().width > this.getWidth()){
@@ -327,8 +346,10 @@ public class ProductActions extends JFrame {
             }
             this.dispose();
         });
-        JComponent[] array = {viewProducts,b};
+        JComponent[] array = {label,viewProducts,b};
         setObjectsFont(array,panel);
+        this.setSize(viewProducts.getPreferredSize().width+30, 200);
+        toCentre();
         b.setVisible(true);
         viewProducts.setVisible(true);
         revalidate();
@@ -386,53 +407,60 @@ public class ProductActions extends JFrame {
     private void chooseProduct(Group gr) {
         JComboBox<Product> viewProducts = new JComboBox<>();
         for (Product product : gr.getProducts()) viewProducts.addItem(product);
+        JLabel firstLabel = new JLabel("Оберіть товар:");
         try {
-            viewProducts.addActionListener(selectPr -> {
-                resetPanel();
-                JButton add = new JButton("Додати");
-                JButton remove = new JButton("Списати");
-                Product pr = (Product) viewProducts.getSelectedItem();
-                JButton submit = new JButton("Submit");
-                JSpinner spinner = new JSpinner();
-                final boolean[] choice = {false};
-                submit.addActionListener(sub -> {
-                    try {
-                        productSetCount(gr, pr, spinner.getValue(), choice[0]);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            JLabel secondLabel = new JLabel("Що потрібно зробити з товаром: ");
+            JButton add = new JButton("Додати");
+            JButton remove = new JButton("Списати");
+            Product pr = (Product) viewProducts.getSelectedItem();
+            JButton submit = new JButton("Submit");
+            JSpinner spinner = new JSpinner();
+            final boolean[] choice = {false};
+            submit.addActionListener(sub -> {
+                try {
+                    productSetCount(gr, pr, spinner.getValue(), choice[0]);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                });
-                add.addActionListener(press -> {
-                    resetPanel();
-                    spinner.setModel(model(pr,true));
-                    choice[0] = true;
-                    setObjectsFont(new JComponent[]{spinner, submit},panel);
-                    revalidate();
-                    repaint();
-                });
-                remove.addActionListener(press -> {
-                    resetPanel();
-                    if(pr != null) {
-                        spinner.setModel(model(pr,false));
-                        choice[0] = false;
-                        setObjectsFont(new JComponent[]{spinner, submit},panel);
-                    }
-                    revalidate();
-                    repaint();
-                });
-                setObjectsFont(new JButton[]{add, remove},panel);
+            });
+            add.addActionListener(press -> {
+                resetPanel();
+                JLabel label = new JLabel("Скільки потрібно додати товару: ");
+                spinner.setModel(model(pr,true));
+                choice[0] = true;
+                setObjectsFont(new JComponent[]{label,spinner, submit},panel);
+                this.setSize(label.getPreferredSize().width+30, 150);
+                toCentre();
                 revalidate();
                 repaint();
             });
+            remove.addActionListener(press -> {
+                resetPanel();
+                JLabel label = new JLabel("Скільки потрібно списати товару: ");
+                if(pr != null) {
+                    spinner.setModel(model(pr,false));
+                    choice[0] = false;
+                    setObjectsFont(new JComponent[]{label,spinner, submit},panel);
+                    this.setSize(label.getPreferredSize().width+30, 150);
+                    toCentre();
+                }
+                revalidate();
+                repaint();
+            });
+            setObjectsFont(new JComponent[]{firstLabel,viewProducts,secondLabel,add,remove},panel);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        setObjectsFont(new JComboBox[]{viewProducts},panel);
+        this.setSize(viewProducts.getPreferredSize().width+30, 200);
+        toCentre();
     }
 
     private void productSetCount(Group gr, Product pr, Object count, boolean choice) throws IOException {
-        if((double) count == 0.0) return;
+        if(count instanceof Double)
+            if((double) count == 0.0) return;
+        if(count instanceof Integer)
+            if((int) count == 0) return;
         dispose();
         String lineToEdit = pr.toString();
         String message;

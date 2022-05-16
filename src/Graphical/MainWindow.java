@@ -9,6 +9,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.util.Vector;
 
 public class MainWindow extends JFrame {
@@ -53,7 +56,8 @@ public class MainWindow extends JFrame {
             this.topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
             JButton helpButton = new JButton("Help");
             helpButton.addActionListener(press -> {
-
+                /*help*/
+                openInstruction();
             });
             JComboBox<String> viewCombo = new JComboBox<>(list);
             viewCombo.addActionListener(select -> {
@@ -127,7 +131,7 @@ public class MainWindow extends JFrame {
         JButton incrSortButton = new JButton("Incr");
         JButton decrSortButton = new JButton("Decr");
         JButton addButton = new JButton(choice == GROUP ? "Add" : "New");
-        JButton findButton = new JButton(choice == GROUP ? "Select" : "Find");
+        JButton findButton = new JButton(choice == GROUP ? "Search" : "Find");
         JButton removeButton = new JButton(choice == GROUP ? "Remove" : "Delete");
         JButton editButton = new JButton(choice == GROUP ? "Edit" : "Change");
         JButton resetTable = new JButton("Reset");
@@ -293,7 +297,6 @@ public class MainWindow extends JFrame {
         this.remove(scroll);
         this.currentGroup = null;
         String[] column = {"Назва", "Ціна (грн)", "Кількість", "Виробник", "Опис","Група"};
-
         String[][] info = new String[this.tableContext.size() + 1][5];
         for (int i = 0; i < this.tableContext.size(); i++) {
             Product product = this.tableContext.get(i);
@@ -417,6 +420,32 @@ public class MainWindow extends JFrame {
 
     private void groupAction(Action choice){
         new GroupActions(this, choice);
+    }
+
+    private void openInstruction() {
+        JFrame helpWindow = new JFrame();
+        JPanel helpPanel = new JPanel(new GridLayout(1,1));
+        helpWindow.setSize(500,500);
+        Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+        helpWindow.setLocation((dimension.width - 500)/2, (dimension.height - 500)/2);
+        JTextArea text = new JTextArea();
+        text.setEditable(false);
+        text.setFont(new Font("Arial", Font.BOLD,20));
+        JScrollPane scroll = new JScrollPane(text, ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
+        helpPanel.add(scroll);
+        helpWindow.add(helpPanel);
+        helpWindow.setVisible(true);
+
+        File file = new File("src//resources//Help.txt");
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            text.read(br, null);
+            br.close();
+            text.requestFocus();
+        } catch (Exception f) {
+            JOptionPane.showMessageDialog(null, f);
+        }
     }
 }
 

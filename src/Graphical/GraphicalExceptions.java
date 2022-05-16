@@ -14,8 +14,6 @@ public class GraphicalExceptions extends Exception{
 
 class EmptyGroupsException extends GraphicalExceptions{
 
-    EmptyGroupsException(){}
-
     EmptyGroupsException(String msg){
         super(msg);
         JOptionPane.showMessageDialog(null, "Не створено/додано жодної групи","Error",  JOptionPane.ERROR_MESSAGE);
@@ -24,8 +22,6 @@ class EmptyGroupsException extends GraphicalExceptions{
 
 class EmptyProductsException extends GraphicalExceptions{
 
-    EmptyProductsException(){}
-
     EmptyProductsException(String msg){
         super(msg);
         JOptionPane.showMessageDialog(null, "Не створено/додано жодного товару","Error",  JOptionPane.ERROR_MESSAGE);
@@ -33,9 +29,6 @@ class EmptyProductsException extends GraphicalExceptions{
 }
 
 class IllegalInputFormat extends GraphicalExceptions{
-    public IllegalInputFormat() {
-        super();
-    }
 
     public IllegalInputFormat(String message) {
         super(message);

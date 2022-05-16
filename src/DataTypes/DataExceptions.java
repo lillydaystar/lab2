@@ -19,12 +19,6 @@ class IllegalFileFormatException extends DataExceptions {
     }
 }
 
-class IncorrectProductException extends DataExceptions {
-    IncorrectProductException(String message) {
-        super(message);
-    }
-}
-
 class IncorrectGroupException extends DataExceptions {
     IncorrectGroupException(String message) {
         super(message);
@@ -35,16 +29,10 @@ class IncorrectPriceException extends DataExceptions {
     IncorrectPriceException(String message) {
         super(message);
     }
-    IncorrectPriceException() {
-        super();
-    }
 }
 
 class IncorrectCountException extends DataExceptions {
     IncorrectCountException(String message) {
         super(message);
-    }
-    IncorrectCountException() {
-        super();
     }
 }
