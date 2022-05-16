@@ -18,13 +18,13 @@ public class ProductPattern {
         this.count = count;
     }
 
-    public ProductPattern(String name, String description, String maker, double price, double count) {
+    /*public ProductPattern(String name, String description, String maker, double price, double count) {
         this.name = name;
         this.description = description;
         this.maker = maker;
         this.price = price+"";
         this.count = count+"";
-    }
+    }*/
 
     public void addTypeFilter(boolean pieceAllowed, boolean liquidAllowed, boolean weightAllowed) {
         this.filter = new TypeFilter(pieceAllowed, liquidAllowed, weightAllowed);

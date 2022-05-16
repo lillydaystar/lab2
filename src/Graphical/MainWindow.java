@@ -13,8 +13,8 @@ public class MainWindow extends JFrame {
     private final static int STORE = 1;
     private final static int GROUP = 2;
 
-    final static int WIDTH = 800;
-    final static int HEIGHT = 600;
+    private final static int WIDTH = 800;
+    private final static int HEIGHT = 600;
 
     private JTable table;
     private JPanel topPanel;
@@ -166,9 +166,8 @@ public class MainWindow extends JFrame {
                 groupAction(Action.ADD);
             }
         });
-        findButton.addActionListener(press -> {
-            new SearchWindow(choise == GROUP, this.currentGroup, this.store);
-        });
+        findButton.addActionListener(press ->
+                new SearchWindow(choise == GROUP, this.currentGroup, this.store));
         removeButton.addActionListener(press -> {
             if (choise == GROUP) {
                 try {
@@ -248,13 +247,15 @@ public class MainWindow extends JFrame {
     private void createGroupTable(Group group) {
         this.currentGroup = group;
         String[] column = {"Name", "Price", "Count", "Maker", "Description"};
-        String[][] info = new String[group.getNumberOfProducts()][5];
+        String[][] info = new String[group.getNumberOfProducts() + 1][5];
         for (int i = 0; i < group.getNumberOfProducts(); i++) {
             Product product = group.getProduct(i);
             info[i] = new String[] {product.getName(), ""+product.getPrice(),
                                     ""+product.getDCount()+product.getEnding(),
                                     product.getMaker(), product.getDescription()};
         }
+        info[info.length - 1] = new String[] {"Всього: "+group.getNumberOfProducts()+" товарів"
+                , group.totalPrice()+"", "", "", ""};
         this.table = new JTable(info, column);
         DefaultTableModel tableModel = new DefaultTableModel(info, column) {
             @Override
@@ -271,17 +272,20 @@ public class MainWindow extends JFrame {
 
     private void createStoreTable() {
         this.currentGroup = null;
-        String[] column = {"Name", "Number of products", "Description"};
-        String[][] info = new String[this.store.numberOfGroups()][3];
+        String[] column = {"Назва", "Кількість продуктів", "Опис", "Загальна вартість"};
+        String[][] info = new String[this.store.numberOfGroups()+1][4];
         for (int i = 0; i < this.store.numberOfGroups(); i++) {
             try {
                 info[i] = new String[] {this.store.get(i).getName(),
                         "" + this.store.get(i).getNumberOfProducts(),
-                        this.store.get(i).getDescription()};
+                        this.store.get(i).getDescription(), this.store.get(i).totalPrice()+""};
             } catch (Exception e) {
                 System.out.println(e.getMessage());
             }
         }
+        info[info.length - 1] = new String[] {"Всього: "+store.numberOfGroups()+" груп",
+                store.totalProducts()+" продуктів", "",
+                store.totalPrice()+" грн"};
         this.table = new JTable(info, column);
         DefaultTableModel tableModel = new DefaultTableModel(info, column) {
             @Override

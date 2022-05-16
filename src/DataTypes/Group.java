@@ -47,7 +47,7 @@ public class Group implements Iterable<Product> {
         }
         reader.close();
         this.file = newGroupFile(path);
-        addProductToFile(products);
+//        addProductToFile(products);
         System.out.println(products);
         System.out.println("Group "+this.name+" number "+this.getNumberOfProducts()+" description "+this.description);
         /*if (numberOfProducts != this.products.size())
@@ -144,7 +144,7 @@ public class Group implements Iterable<Product> {
         }
         if (fst.length() < snd.length())
             return -1;
-        if (snd.length() > snd.length())
+        if (fst.length() > snd.length())
             return 1;
         return 0;
     }
@@ -167,5 +167,12 @@ public class Group implements Iterable<Product> {
                 return products.get(position++);
             }
         };
+    }
+
+    public double totalPrice() {
+        double price = 0;
+        for (Product product : this)
+            price += product.price*product.count;
+        return price;
     }
 }
