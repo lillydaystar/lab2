@@ -3,14 +3,12 @@ package DataTypes;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class Store implements Iterable<Group> {
 
     private final List<Group> groups;
-
-    private final ArrayList<Product> products = new ArrayList<>();
 
     public Store(ArrayList<Group> groups) {
         this.groups = groups;
@@ -22,7 +20,6 @@ public class Store implements Iterable<Group> {
 
     public void add(Group group) {
         this.groups.add(group);
-        products.addAll(group.getProducts());
     }
 
     public int numberOfGroups() {
@@ -30,10 +27,23 @@ public class Store implements Iterable<Group> {
     }
 
     public int numberOfAllProducts(){
-        return products.size();
+        int number = 0;
+        for (Group group : this)
+            number += group.getNumberOfProducts();
+        return number;
     }
 
-    public ArrayList<Product> getProducts(){return this.products;}
+    public List<Product> getProducts() {
+        List<Product> list = new LinkedList<>();
+        for (Group group : this)
+            for (Product product : group)
+                list.add(product);
+        return list;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
+    }
 
     public Group get(int number) throws IncorrectGroupException {
         if (number >= 0 && number < this.groups.size())
@@ -89,23 +99,22 @@ public class Store implements Iterable<Group> {
         });
     }
 
-    public void sortByProductsName(boolean fromAtoZ){
-        this.products.sort((fst, snd) -> compare(fst.getName(), snd.getName()) * (fromAtoZ ? 1 : -1));
+    public static void sortByName(List<Product> list, boolean fromAtoZ) {
+        list.sort((fst, snd) -> compare(fst.getName(), snd.getName()) * (fromAtoZ ? 1 : -1));
     }
 
-    public void sortAllByGroups(boolean fromAtoZ){
-        this.products
-                .sort((fst, snd) -> compare(fst.getGroup().getName(), snd.getGroup().getName())*(fromAtoZ ? 1 : -1));
-    }
-
-    public void sortAllByPrice(boolean fromCheapToExpensive) {
-        this.products.sort((fst, snd) -> {
+    public static void sortByPrice(List<Product> list, boolean fromCheapToExpensive) {
+        list.sort((fst, snd) -> {
             if (fst.price > snd.price)
                 return fromCheapToExpensive ? 1 : -1;
             else if (fst.price < snd.price)
                 return fromCheapToExpensive ? -1 : 1;
             else return 0;
         });
+    }
+
+    public static void sortByGroup(List<Product> list, boolean fromAtoZ) {
+        list.sort((fst, snd) -> compare(fst.getGroup().getName(), snd.getGroup().getName())*(fromAtoZ ? 1 : -1));
     }
 
     private static int compare(String fst, String snd) {
@@ -146,4 +155,6 @@ public class Store implements Iterable<Group> {
             price += group.totalPrice();
         return price;
     }
+
+
 }

@@ -99,10 +99,11 @@ public class GroupActions extends JFrame {
         setObjectsFont(array);
         revalidate();
         repaint();
+        this.window.refreshStore();
     }
 
     private void createGroupFile(String name, String description) throws IOException, DataExceptions {
-        File f = new File("Store//"+name + ".txt");
+        File f = new File("Store/"+name + ".txt");
         FileWriter fw = new FileWriter(f);
         BufferedWriter writer = new BufferedWriter(fw);
         writer.write("Group '" + name + "' size 0 description '" + description + "'\n");
@@ -110,6 +111,7 @@ public class GroupActions extends JFrame {
         fw.close();
         Group gr = new Group(f);
         MainWindow.store.add(gr);
+        this.window.createTopPanel();
     }
 
     private void deleteGroup(){

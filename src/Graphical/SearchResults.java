@@ -4,9 +4,13 @@ import DataTypes.Group;
 import DataTypes.Product;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,6 +41,24 @@ public class SearchResults extends JFrame {
 
         outputButton.addActionListener(press -> {
             /* action listener for Output button */
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setCurrentDirectory(new File("."));
+            fileChooser.setAcceptAllFileFilterUsed(false);
+            FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
+            fileChooser.addChoosableFileFilter(filter);
+            int returnVal = fileChooser.showOpenDialog(null);
+            File file = fileChooser.getSelectedFile();
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+                    for (Product product : list)
+                        writer.write(product.toString());
+                    writer.flush();
+                    writer.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         });
         topPanel.add(outputButton);
         createTable(list);

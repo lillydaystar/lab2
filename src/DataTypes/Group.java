@@ -143,6 +143,13 @@ public class Group implements Iterable<Product> {
         return 0;
     }
 
+    public boolean contains(Product argument) {
+        for (Product product : this)
+            if (product.name.equals(argument.name))
+                return true;
+        return false;
+    }
+
     @Override
     public String toString() {
         return name;
