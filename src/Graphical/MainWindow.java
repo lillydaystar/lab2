@@ -17,8 +17,8 @@ public class MainWindow extends JFrame {
     private final static int GROUP = 2;
     private final static int PRODUCTS = 3;
 
-    private final static int WIDTH = 800;
-    private final static int HEIGHT = 600;
+    private final static int WIDTH = 1000;
+    private final static int HEIGHT = 800;
 
     private JTable table;
     private JPanel topPanel;
@@ -399,9 +399,11 @@ public class MainWindow extends JFrame {
         table.setDefaultRenderer(Object.class, new DefaultTableCellRenderer()
         {
             @Override
-            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                                                           boolean isSelected, boolean hasFocus, int row, int column)
             {
-                final Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                final Component c = super.
+                        getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 c.setBackground(row == info.length-1 ? new Color(134,231,82) : Color.WHITE);
                 return c;
             }
@@ -411,7 +413,8 @@ public class MainWindow extends JFrame {
     }
 
     private void productAction(Action choice) throws EmptyGroupsException{
-        if(store.isEmpty()) throw new EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
+        if(store.isEmpty()) throw new
+                EmptyGroupsException("Жодної групи не існує, будь ласка, створіть або додайте хоча б одну.");
         new ProductActions(this, this.currentGroup, choice);
     }
 
