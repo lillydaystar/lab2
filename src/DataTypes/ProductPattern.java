@@ -7,24 +7,17 @@ public class ProductPattern {
     private String maker;
     private String price;
     private String count;
-
+    private boolean regex;
     private TypeFilter filter;
 
-    public ProductPattern(String name, String description, String maker, String price, String count) {
+    public ProductPattern(String name, String description, String maker, String price, String count, boolean regex) {
         this.name = name;
         this.description = description;
         this.maker = maker;
         this.price = price;
         this.count = count;
+        this.regex = regex;
     }
-
-    /*public ProductPattern(String name, String description, String maker, double price, double count) {
-        this.name = name;
-        this.description = description;
-        this.maker = maker;
-        this.price = price+"";
-        this.count = count+"";
-    }*/
 
     public void addTypeFilter(boolean pieceAllowed, boolean liquidAllowed, boolean weightAllowed) {
         this.filter = new TypeFilter(pieceAllowed, liquidAllowed, weightAllowed);
@@ -51,11 +44,14 @@ public class ProductPattern {
     }
 
     boolean satisfiesName(String name) {
-        return name.contains(this.name);
+        if (this.description != null) return true;
+        if (this.regex) return this.name.isEmpty() || StringMatch.matches(name, this.name);
+        else return name.contains(this.name);
     }
 
     boolean satisfiesMaker(String maker) {
-        return maker.contains(this.maker);
+        return this.regex ?
+                (this.maker.isEmpty() || StringMatch.matches(maker, this.maker)) : maker.contains(this.maker);
     }
 
     boolean satisfiesDescription(String description) {
@@ -88,5 +84,14 @@ public class ProductPattern {
                 return this.pieceAllowed;
             return true;
         }
+
+        public String toString() {
+            return "piece "+this.pieceAllowed+" liquid "+this.liquidAllowed+" weight "+this.weightAllowed;
+        }
+    }
+
+    public String toString() {
+        return "name "+this.name+" maker "+this.maker+
+                " price "+this.price+" count "+this.count+" regex "+this.regex;
     }
 }

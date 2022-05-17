@@ -3,14 +3,18 @@ package Graphical;
 import DataTypes.*;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.LinkedList;
 import java.util.List;
 
 class SearchWindow extends JFrame {
 
-    private final static int SEARCH_WIDTH = 300;
-    private final static int SEARCH_HEIGHT = 300;
+    private final static int SEARCH_WIDTH = 800;
+    private final static int SEARCH_HEIGHT = 600;
 
     private final Store store;
     private final Group group;
@@ -19,6 +23,13 @@ class SearchWindow extends JFrame {
     private boolean searchForLiquid;
     private boolean searchForWeight;
     private boolean searchForPiece;
+    private boolean useRegex;
+
+    private JScrollPane scroll;
+    private JTextField nameField;
+    private JTextField priceField;
+    private JTextField countField;
+    private JTextField makerField;
 
     SearchWindow(boolean searchInGroup, Group currentGroup, Store store) {
         super("Search");
@@ -31,106 +42,175 @@ class SearchWindow extends JFrame {
     }
 
     private void addElements(boolean searchInGroup) {
-        try {
-            JPanel panel = new JPanel(new GridLayout(4, 2));
-            JPanel check = new JPanel(new GridLayout(4, 1));
-            panel.setPreferredSize(new Dimension(SEARCH_WIDTH, SEARCH_WIDTH *2/3));
-//            Vector<String> list = new Vector<>(this.store.numberOfGroups() + 1);
-//            for (int i = 0; i < this.store.numberOfGroups(); i++)
-//                list.add(this.store.get(i).getName());
-//            list.add("<all>");
+//        setLayout(new FlowLayout(FlowLayout.LEFT));
+        JPanel mainPanel = new JPanel(new GridLayout(2, 1));
+        JPanel searchPanel = new JPanel(new GridLayout(4, 2));
+        JPanel checkPanel = new JPanel(new GridLayout(5, 1));
 
-            JTextField nameField = new JTextField();
-            JTextField priceField = new JTextField();
-            JTextField countField = new JTextField();
-            JTextField makerField = new JTextField();
-//            JComboBox<String> groupCombo = new JComboBox<>(list);
-            JCheckBox checkBox = new JCheckBox("Search \"name\" in description");
-            JCheckBox pieceCheck = new JCheckBox("Search for piece products");
-            JCheckBox weightCheck = new JCheckBox("Search for weight products");
-            JCheckBox liquidCheck = new JCheckBox("Search for liquid products");
+        nameField = new JTextField();
+        priceField = new JTextField();
+        countField = new JTextField();
+        makerField = new JTextField();
 
-            checkBox.addItemListener(checked ->
-                    setSearchInDescription(checked.getStateChange() == ItemEvent.SELECTED));
-            pieceCheck.addItemListener(checked ->
-                    setSearchForPiece(checked.getStateChange() == ItemEvent.SELECTED));
-            liquidCheck.addItemListener(checked ->
-                    setSearchForLiquid(checked.getStateChange() == ItemEvent.SELECTED));
-            weightCheck.addItemListener(checked ->
-                    setSearchForWeight(checked.getStateChange() == ItemEvent.SELECTED));
+        JCheckBox checkBox = new JCheckBox("Search \"name\" in description");
+        JCheckBox pieceCheck = new JCheckBox("Search for piece products");
+        JCheckBox weightCheck = new JCheckBox("Search for weight products");
+        JCheckBox liquidCheck = new JCheckBox("Search for liquid products");
+        JCheckBox regex = new JCheckBox("Use simple regular expression");
 
-            JLabel nameLabel = new JLabel("Name:", JLabel.CENTER);
-            JLabel priceLabel = new JLabel("Price:", JLabel.CENTER);
-//            JLabel groupLabel = new JLabel("Group:", JLabel.CENTER);
-            JLabel countLabel = new JLabel("Count:", JLabel.CENTER);
-            JLabel makerLabel = new JLabel("Maker:", JLabel.CENTER);
-            JButton searchButton = new JButton("Search");
+        checkBox.addItemListener(checked -> {
+            setSearchInDescription(checked.getStateChange() == ItemEvent.SELECTED);
+            createTable(performSearch(searchInGroup));
+        });
+        pieceCheck.addItemListener(checked -> {
+            setSearchForPiece(checked.getStateChange() == ItemEvent.SELECTED);
+            createTable(performSearch(searchInGroup));
+        });
+        liquidCheck.addItemListener(checked -> {
+            setSearchForLiquid(checked.getStateChange() == ItemEvent.SELECTED);
+            createTable(performSearch(searchInGroup));
+        });
+        weightCheck.addItemListener(checked -> {
+            setSearchForWeight(checked.getStateChange() == ItemEvent.SELECTED);
+            createTable(performSearch(searchInGroup));
+        });
+        regex.addItemListener(checked -> {
+            setUseRegex(checked.getStateChange() == ItemEvent.SELECTED);
+            createTable(performSearch(searchInGroup));
+        });
 
-            searchButton.addActionListener(press -> {
-                try {
-                    String name = nameField.getText();
-                    String priceStr = priceField.getText();
-                    String countStr = countField.getText();
-                    String maker = makerField.getText();
+        Component text[] = {nameField, priceField, countField, makerField};
+        for (Component component : text)
+            component.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+//                    System.out.println(e.getKeyCode());
+                }
 
-                    List<Product> found;
-                    ProductPattern pattern;
-                    if (searchInGroup) {
-                        if (this.searchInDescription) {
-                            pattern = new ProductPattern(name, name, maker, priceStr, countStr);
-                            pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
-                        }
-                        else {
-                            pattern = new ProductPattern(name, null, maker, priceStr, countStr);
-                            pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
-                        }
-                        found = Searching.search(this.group, pattern);
-                    } else {
-                        if (searchInDescription) {
-                            pattern = new ProductPattern(name, name, maker, priceStr, countStr);
-                            pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
-                        }
-                        else {
-                            pattern = new ProductPattern(name, null, maker, priceStr, countStr);
-                            pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
-                        }
-                        found = Searching.search(this.store, pattern);
-                    }
+                @Override
+                public void keyPressed(KeyEvent e) {
+//                    System.out.println(e.getKeyCode());
+                }
 
-                    this.setVisible(false);
-                    new SearchResults(found);
-                } catch (DataExceptions e) {
-                    e.printStackTrace();
-                    JOptionPane.showMessageDialog(this, e.getMessage(),
-                            "Error", JOptionPane.ERROR_MESSAGE);
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    createTable(performSearch(searchInGroup));
                 }
             });
 
-            panel.add(nameLabel);
-            panel.add(nameField);
-            panel.add(priceLabel);
-            panel.add(priceField);
-            panel.add(countLabel);
-            panel.add(countField);
-            panel.add(makerLabel);
-            panel.add(makerField);
-//            panel.add(groupLabel);
-//            panel.add(groupCombo);
+        JLabel nameLabel = new JLabel("Name:", JLabel.CENTER);
+        JLabel priceLabel = new JLabel("Price:", JLabel.CENTER);
+        JLabel countLabel = new JLabel("Count:", JLabel.CENTER);
+        JLabel makerLabel = new JLabel("Maker:", JLabel.CENTER);
 
-            check.add(checkBox);
-            check.add(pieceCheck);
-            check.add(weightCheck);
-            check.add(liquidCheck);
+        createTable(new LinkedList<>());
+        setFont(new Component[] {nameLabel, priceLabel, countLabel, makerLabel,
+                    checkBox, pieceCheck, liquidCheck, weightCheck, regex,
+                    nameField, priceField, countField, makerField}, 16);
 
-            this.add(panel, "North");
-            this.add(check, "Center");
-            this.add(searchButton, "South");
-        } catch (Exception e) {
+        searchPanel.add(nameLabel);
+        searchPanel.add(nameField);
+        searchPanel.add(priceLabel);
+        searchPanel.add(priceField);
+        searchPanel.add(countLabel);
+        searchPanel.add(countField);
+        searchPanel.add(makerLabel);
+        searchPanel.add(makerField);
+
+        checkPanel.add(checkBox);
+        checkPanel.add(pieceCheck);
+        checkPanel.add(weightCheck);
+        checkPanel.add(liquidCheck);
+        checkPanel.add(regex);
+
+        mainPanel.add(searchPanel);
+        mainPanel.add(checkPanel);
+        this.add(mainPanel, "West");
+        this.add(this.scroll, "Center");
+    }
+
+    private void createTable(List<Product> list) {
+        if (this.scroll != null) this.remove(scroll);
+        this.scroll = null;
+        JTable table;
+        this.revalidate();
+        this.repaint();
+        String[] column = {"Name", "Price", "Count", "Maker", "Description"};
+        String[][] info = new String[list.size() + 1][5];
+        for (int i = 0; i < list.size(); i++) {
+            Product product = list.get(i);
+            info[i] = new String[] {product.getName(), ""+product.getPrice(),
+                    ""+product.getDCount()+product.getEnding(),
+                    product.getMaker(), product.getDescription()};
+        }
+        info[info.length - 1] = new String[] {"Всього: "+list.size()+" товарів"
+                , totalPrice(list)+"", "", "", ""};
+        table = new JTable(info, column);
+        DefaultTableModel tableModel = new DefaultTableModel(info, column) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        table.setModel(tableModel);
+        this.scroll = new JScrollPane(table);
+        this.scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        this.scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.add(scroll);
+        this.revalidate();
+        this.repaint();
+    }
+
+    private List<Product> performSearch(boolean searchInGroup) {
+        try {
+            String name = nameField.getText();
+            String priceStr = priceField.getText();
+            String countStr = countField.getText();
+            String maker = makerField.getText();
+
+            List<Product> found;
+            ProductPattern pattern;
+            if (searchInGroup) {
+                if (this.searchInDescription) {
+                    pattern = new ProductPattern(name, name, maker, priceStr, countStr, useRegex);
+                    pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
+                }
+                else {
+                    pattern = new ProductPattern(name, null, maker, priceStr, countStr, useRegex);
+                    pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
+                }
+                found = Searching.search(this.group, pattern);
+            } else {
+                if (searchInDescription) {
+                    pattern = new ProductPattern(name, name, maker, priceStr, countStr, useRegex);
+                    pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
+                }
+                else {
+                    pattern = new ProductPattern(name, null, maker, priceStr, countStr, useRegex);
+                    pattern.addTypeFilter(this.searchForPiece, this.searchForLiquid, this.searchForWeight);
+                }
+                found = Searching.search(this.store, pattern);
+            }
+
+            return found;
+        } catch (DataExceptions e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Error while loading groups",
+            JOptionPane.showMessageDialog(this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
+        return new LinkedList<>();
+    }
+
+    private double totalPrice(List<Product> list) {
+        double price = 0;
+        for (Product product : list)
+            price += product.getPrice()*product.getCount();
+        return price;
+    }
+
+    private void setFont(Component array[], int size) {
+        for (Component component : array)
+            component.setFont(new Font(Font.MONOSPACED, Font.PLAIN, size));
     }
 
     private void setSearchInDescription(boolean searchInDescription) {
@@ -147,5 +227,10 @@ class SearchWindow extends JFrame {
 
     private void setSearchForPiece(boolean searchForPiece) {
         this.searchForPiece = searchForPiece;
+    }
+
+    private void setUseRegex(boolean useRegex) {
+        this.useRegex = useRegex;
+        System.out.println(this.useRegex);
     }
 }
