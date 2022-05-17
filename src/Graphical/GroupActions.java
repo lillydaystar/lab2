@@ -142,6 +142,7 @@ public class GroupActions extends JFrame {
                 e.printStackTrace();
             }
             dispose();
+            this.window.createTopPanel();
             this.window.refreshStore();
         });
         setObjectsFont(new JComponent[]{label,viewGroups,submit},panel);
@@ -232,6 +233,7 @@ public class GroupActions extends JFrame {
             }
             if(correct) {
                 dispose();
+                this.window.createTopPanel();
                 this.window.refreshStore();
             }
         });

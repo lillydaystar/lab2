@@ -431,36 +431,46 @@ public class ProductActions extends JFrame {
             JLabel secondLabel = new JLabel("Що потрібно зробити з товаром: ");
             JButton add = new JButton("Додати");
             JButton remove = new JButton("Списати");
-            Product pr = (Product) viewProducts.getSelectedItem();
+            //Product pr = null;
             JButton submit = new JButton("Submit");
             JSpinner spinner = new JSpinner();
             final boolean[] choice = {false};
-            submit.addActionListener(sub -> {
-                try {
-                    productSetCount(gr, pr, spinner.getValue(), choice[0]);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            });
             add.addActionListener(press -> {
                 resetPanel();
+                Product pr = (Product) viewProducts.getSelectedItem();
                 JLabel label = new JLabel("Скільки потрібно додати товару: ");
                 spinner.setModel(model(pr,true));
                 choice[0] = true;
                 setObjectsFont(new JComponent[]{label,spinner, submit},panel);
                 this.setSize(label.getPreferredSize().width+30, 150);
                 toCentre();
+                submit.addActionListener(sub -> {
+                    try {
+                        productSetCount(gr, pr, spinner.getValue(), choice[0]);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                });
                 revalidate();
                 repaint();
             });
             remove.addActionListener(press -> {
                 resetPanel();
+                Product pr = (Product) viewProducts.getSelectedItem();
                 JLabel label = new JLabel("Скільки потрібно списати товару: ");
                 if(pr != null) {
                     spinner.setModel(model(pr,false));
                     choice[0] = false;
                     setObjectsFont(new JComponent[]{label,spinner, submit},panel);
+                    submit.addActionListener(sub -> {
+                        try {
+                            productSetCount(gr, pr, spinner.getValue(), choice[0]);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    });
                     this.setSize(label.getPreferredSize().width+30, 150);
                     toCentre();
                 }
@@ -516,7 +526,7 @@ public class ProductActions extends JFrame {
         if(pr instanceof LiquidProduct || pr instanceof WeightProduct){
             double max;
             if(choice) max = 1000;
-            else max = pr.getDCount();
+            else max = pr.getDCount()+0.000;
             model = new SpinnerNumberModel(
                     0.0,
                     0.0,
