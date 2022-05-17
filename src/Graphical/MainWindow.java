@@ -134,7 +134,6 @@ public class MainWindow extends JFrame {
         JButton findButton = new JButton(choice == GROUP ? "Search" : "Find");
         JButton removeButton = new JButton(choice == GROUP ? "Remove" : "Delete");
         JButton editButton = new JButton(choice == GROUP ? "Edit" : "Change");
-        JButton resetTable = new JButton("Reset");
         JButton fillButton = new JButton("Bring/Sell");
         azSortButton.addActionListener(press -> {
             if (choice == GROUP) {
@@ -245,18 +244,6 @@ public class MainWindow extends JFrame {
                 e.printStackTrace();
             }
         });
-        resetTable.addActionListener(press -> {        //тимчасове!
-            if(choice == STORE) {
-                refreshStore();
-            }else if(choice == GROUP) refreshGroup();
-            else {
-                try {
-                    refreshProductsStore();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
         this.taskPanel.add(azSortButton);
         this.taskPanel.add(zaSortButton);
         if (choice == GROUP || choice == PRODUCTS) {
@@ -270,12 +257,11 @@ public class MainWindow extends JFrame {
         if(choice == GROUP){
             this.taskPanel.add(fillButton);
         }
-        this.taskPanel.add(resetTable);
         this.add(taskPanel, "East");
     }
 
 
-    private void refreshGroup() {
+    void refreshGroup() {
         if (this.scroll != null) this.remove(scroll);
         if (this.taskPanel != null) this.remove(this.taskPanel);
         createGroupTable(this.currentGroup);

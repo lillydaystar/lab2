@@ -98,6 +98,7 @@ public class ProductActions extends JFrame {
         type.addItem("Рідкий(л)");
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {
+            boolean correct = false;
             try {
                 if (name.getText().isEmpty() || price.getText().isEmpty() || description.getText().isEmpty() || maker.getText().isEmpty())
                     throw new IllegalInputFormat("Не залишайте порожні поля!!!");
@@ -127,6 +128,7 @@ public class ProductActions extends JFrame {
                             newPr = new LiquidProduct(n, d, m, p, 0);
                             break;
                     }
+                    correct = true;
                     gr.add(newPr);
                     addToFile(gr, newPr);
                 } catch (IOException e) {
@@ -134,9 +136,16 @@ public class ProductActions extends JFrame {
                 }
             }
             catch (IllegalInputFormat | ProductExistException e) {
+                name.setText("");
+                price.setText("");
+                description.setText("");
+                maker.setText("");
                 e.printStackTrace();
             }
-            dispose();
+            if(correct) {
+                dispose();
+                this.window.refreshGroup();
+            }
         });
         JComponent[] array = {nameL,name,priceL,price,descriptionL,description,makerL,maker,typeL,type};
         setObjectsFont(array,paramsPanel);
@@ -204,7 +213,7 @@ public class ProductActions extends JFrame {
     }
 
     private void editProductParams(Group gr, Product pr, boolean nameSelected,
-                                   boolean priceSelected, boolean descrySelected,
+                                   boolean priceSelected, boolean descriptionSelected,
                                    boolean makerSelected) {
         resetPanel();
         JLabel product = new JLabel(pr.toString());
@@ -229,7 +238,7 @@ public class ProductActions extends JFrame {
             price = new JTextArea(1, 5);
             setObjectsFont(new JComponent[]{priceL, price},checkPanel);
         }
-        if(descrySelected){
+        if(descriptionSelected){
             JLabel descriptionL = new JLabel("Редагуйте опис: ");
             description = new JTextArea(1, 15);
             description.setLineWrap(true);
@@ -247,6 +256,7 @@ public class ProductActions extends JFrame {
         JTextArea finalDescription = description;
         JTextArea finalMaker = maker;
         submit.addActionListener(press -> {
+            boolean correct;
             try {
                 String n, d, m;
                 double p;
@@ -278,7 +288,7 @@ public class ProductActions extends JFrame {
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
                     m = finalMaker.getText();
                 }
-
+                correct = true;
                 try {
                     String lineToEdit = pr.toString();
                     pr.setName(n);
@@ -290,9 +300,17 @@ public class ProductActions extends JFrame {
                     e.printStackTrace();
                 }
             } catch (IllegalInputFormat | ProductExistException e) {
+                correct = false;
+                if(nameSelected) finalName.setText("");
+                if(descriptionSelected) finalDescription.setText("");
+                if(priceSelected) finalPrice.setText("");
+                if(makerSelected) finalMaker.setText("");
                 e.printStackTrace();
             }
-            dispose();
+            if (correct) {
+                dispose();
+                this.window.refreshGroup();
+            }
         });
         submit.setFont(new Font("Arial", Font.PLAIN, 20));
         panel.add(checkPanel);
@@ -345,6 +363,7 @@ public class ProductActions extends JFrame {
                 e.printStackTrace();
             }
             this.dispose();
+            this.window.refreshGroup();
         });
         JComponent[] array = {label,viewProducts,b};
         setObjectsFont(array,panel);
@@ -457,20 +476,20 @@ public class ProductActions extends JFrame {
     }
 
     private void productSetCount(Group gr, Product pr, Object count, boolean choice) throws IOException {
+        dispose();
         if(count instanceof Double)
             if((double) count == 0.0) return;
         if(count instanceof Integer)
             if((int) count == 0) return;
-        dispose();
         String lineToEdit = pr.toString();
         String message;
         int valueI;
         double valueD;
         if(pr instanceof PieceProduct){
             valueI = (int) count;
-            if(choice) message = "Ви закупили товар на суму " + valueI*pr.getPrice() + " грн";
+            if(choice) message = "На склад прийшло "+valueI+ pr.getEnding() + " такого товару: "+pr.getName()+". На суму " + valueI*pr.getPrice() + " грн";
             else{
-                message = "Ви продали товар на суму " + valueI*pr.getPrice() + " грн";
+                message = "Зі складу списано "+valueI+ pr.getEnding() + " такого товару: "+pr.getName()+". На суму " + valueI*pr.getPrice() + " грн";
                 valueI*=(-1);
             }
             valueI = pr.getCount() + valueI;
@@ -478,15 +497,16 @@ public class ProductActions extends JFrame {
         }
         else{
             valueD = (double) count;
-            if(choice) message = "Ви закупили товар на суму " + valueD*pr.getPrice() + " грн";
+            if(choice) message = "На склад прийшло "+valueD + pr.getEnding() + " такого товару: "+pr.getName()+". На суму " + valueD*pr.getPrice() + " грн";
             else{
-                message = "Ви продали товар на суму " + valueD*pr.getPrice() + " грн";
+                message = "Зі складу списано "+valueD+ pr.getEnding() + " такого товару: "+pr.getName()+". На суму " + valueD*pr.getPrice() + " грн";
                 valueD*=(-1);
             }
             valueD = pr.getDCount() + valueD;
             pr.setCount(valueD);
         }
         JOptionPane.showMessageDialog(null, message, "Успішна операція", JOptionPane.INFORMATION_MESSAGE);
+        this.window.refreshGroup();
         editFile(gr, pr, lineToEdit);
     }
 

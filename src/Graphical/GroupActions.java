@@ -61,9 +61,8 @@ public class GroupActions extends JFrame {
         JButton input = new JButton("Створити вручну");
         setObjectsFont(new JComponent[]{fromFile,input},panel);
         fromFile.addActionListener(press -> {
-            addFile();
             dispose();
-            window.createTopPanel();
+            addFile();
         });
         input.addActionListener(press -> {
             /*створення форми для введення групи вручну*/
@@ -84,21 +83,28 @@ public class GroupActions extends JFrame {
         JPanel paramsPanel = new JPanel(layout);
         JButton submit = new JButton("Submit");
         submit.addActionListener(press -> {
+            boolean correct;
             try {
                 if (name.getText().isEmpty() || description.getText().isEmpty())
                     throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                if(MainWindow.store.fileExist(new File("Store//" + name.getText()+".txt")))
+                if (MainWindow.store.fileExist(new File("Store//" + name.getText() + ".txt")))
                     throw new GroupExistException("Група з такою назвою уже існує!");
+                correct = true;
                 try {
                     createGroupFile(name.getText(), description.getText());
                 } catch (IOException | DataExceptions e) {
                     e.printStackTrace();
                 }
-            }
-            catch (IllegalInputFormat | GroupExistException e) {
+            } catch (IllegalInputFormat | GroupExistException e) {
+                name.setText("");
+                description.setText("");
+                correct = false;
                 e.printStackTrace();
             }
-            dispose();
+            if (correct){
+                dispose();
+                this.window.refreshStore();
+            }
         });
         JComponent[] array = {nameLabel,name,descriptionL,description};
         setObjectsFont(array,paramsPanel);
@@ -106,7 +112,6 @@ public class GroupActions extends JFrame {
         setObjectsFont(new JComponent[]{submit},panel);
         revalidate();
         repaint();
-        this.window.refreshStore();
     }
 
     private void createGroupFile(String name, String description) throws IOException, DataExceptions {
@@ -175,10 +180,13 @@ public class GroupActions extends JFrame {
             return;
         }
         resetPanel();
+        JLabel label = new JLabel("Група: " + gr.getName());
         JTextArea name = null;
         JTextArea description = null;
         GridLayout layout = new GridLayout(nameSelected && descriptionSelected ? 2 : 1, 2);
         layout.setVgap(10);
+        label.setFont(new Font("Arial", Font.PLAIN, 20));
+        panel.add(label);
         JPanel paramsPanel = new JPanel(layout);
         if(nameSelected){
             JLabel nameL = new JLabel("Редагуйте назву: ");
@@ -196,30 +204,36 @@ public class GroupActions extends JFrame {
         JTextArea finalName = name;
         JTextArea finalDescription = description;
         submit.addActionListener(press -> {
-            try{
+            boolean correct;
+            try {
                 String n, d;
-                if(nameSelected){
-                    if(finalName.getText().isEmpty())
+                if (nameSelected) {
+                    if (finalName.getText().isEmpty())
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
-                    if(MainWindow.store.fileExist(new File("Store//" + finalName.getText()+".txt")))
+                    if (MainWindow.store.fileExist(new File("Store//" + finalName.getText() + ".txt")))
                         throw new GroupExistException("Група з такою назвою уже існує!");
                     n = finalName.getText();
                 } else n = gr.getName();
-                if(descriptionSelected){
-                    if(finalDescription.getText().isEmpty())
+                if (descriptionSelected) {
+                    if (finalDescription.getText().isEmpty())
                         throw new IllegalInputFormat("Не залишайте порожні поля!!!");
                     d = finalDescription.getText();
                 } else d = gr.getDescription();
-
+                correct = true;
                 editFile(gr, n, d);
                 gr.setName(n);
-                gr.setFile(new File("Store//"+n+".txt"));
+                gr.setFile(new File("Store//" + n + ".txt"));
                 gr.setDescription(d);
-            }catch(IllegalInputFormat | IOException | GroupExistException e){
+            } catch (IllegalInputFormat | IOException | GroupExistException e) {
+                if(nameSelected) finalName.setText("");
+                if(descriptionSelected) finalDescription.setText("");
+                correct = false;
                 e.printStackTrace();
             }
-            dispose();
-            this.window.refreshStore();
+            if(correct) {
+                dispose();
+                this.window.refreshStore();
+            }
         });
         submit.setFont(new Font("Arial", Font.PLAIN, 20));
         panel.add(paramsPanel);
@@ -283,6 +297,7 @@ public class GroupActions extends JFrame {
                     }
                     Group group = new Group(file);
                     MainWindow.store.add(group);
+                    this.window.refreshStore();
                 }
                 catch (Exception e) {
                     e.printStackTrace();

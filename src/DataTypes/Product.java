@@ -13,7 +13,7 @@ public class Product {
     String maker;
     int count;
     Group group;
-    String regex = "([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє.%\\d ,]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / (\\d+(.[0-9]+)?) грн / (\\d+(.[0-9]+)?)";
+    String regex = "([\"'A-Za-zА-ЯІЇЄа-іїє ]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє.%\\d ,]+) / ([\"'A-Za-zА-ЯІЇЄа-іїє\\- ]+) / (\\d+(.[0-9]+)?) грн / (\\d+(.[0-9]+)?)";
 
     Product() {}
 
