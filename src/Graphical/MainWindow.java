@@ -412,11 +412,11 @@ public class MainWindow extends JFrame {
     }
 
     private void openInstruction() {
-        JFrame helpWindow = new JFrame();
+        JFrame helpWindow = new JFrame("Help");
         JPanel helpPanel = new JPanel(new GridLayout(1,1));
-        helpWindow.setSize(500,500);
+        helpWindow.setSize(1500,1000);
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-        helpWindow.setLocation((dimension.width - 500)/2, (dimension.height - 500)/2);
+        helpWindow.setLocation((dimension.width - 1500)/2, (dimension.height - 1000)/2);
         JTextArea text = new JTextArea();
         text.setEditable(false);
         text.setFont(new Font("Arial", Font.BOLD,20));

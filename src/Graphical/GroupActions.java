@@ -297,6 +297,7 @@ public class GroupActions extends JFrame {
                     }
                     Group group = new Group(file);
                     MainWindow.store.add(group);
+                    this.window.createTopPanel();
                     this.window.refreshStore();
                 }
                 catch (Exception e) {
