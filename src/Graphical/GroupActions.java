@@ -7,9 +7,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.io.*;
 
-public class GroupActions extends JFrame {
-    JPanel panel;
-    MainWindow window;
+class GroupActions extends JFrame {
+    private JPanel panel;
+    private MainWindow window;
 
     GroupActions(MainWindow window, Action action){
         setTitle("Група");
@@ -271,7 +271,7 @@ public class GroupActions extends JFrame {
             throw new IOException("Editing file was not successful!");
     }
 
-    public void resetPanel() {
+    private void resetPanel() {
         remove(panel);
         panel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         this.setSize(500,300);
@@ -285,7 +285,7 @@ public class GroupActions extends JFrame {
     /**Додавання файлу з групою до списку*/
     private void addFile(){
         JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setCurrentDirectory(new File("."));
+        fileChooser.setCurrentDirectory(new File(".\\src\\resources\\"));
         fileChooser.setAcceptAllFileFilterUsed(false);
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
         fileChooser.addChoosableFileFilter(filter);
