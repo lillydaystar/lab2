@@ -122,7 +122,7 @@ public class Group implements Iterable<Product> {
     }
 
     private void parseHeader(String header) throws IllegalFileFormatException {
-        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-zА-ЯІЇЄа-іїє'\\- ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-zА-ЯІЇЄа-іїє,.'\\s]*)'");
+        Pattern headerPattern = Pattern.compile("Group\\s+'([\\S\\s]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([\\S\\s]*)'");
         Matcher matcher = headerPattern.matcher(header);
         if (!matcher.matches()) throw new IllegalFileFormatException("Incorrect header format");
         this.name = matcher.group(1);

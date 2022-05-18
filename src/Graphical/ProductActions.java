@@ -409,7 +409,7 @@ public class ProductActions extends JFrame {
         BufferedReader reader = new BufferedReader(new FileReader(inputFile));
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
         String groupLine = reader.readLine();
-        Pattern headerPattern = Pattern.compile("Group\\s+'([A-Za-zА-ЯІЇЄа-іїє ]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([A-Za-zА-ЯІЇЄа-іїє\\s]*)'");
+        Pattern headerPattern = Pattern.compile("Group\\s+'([\\S\\s]*)'\\s+size\\s+(\\d+)\\s+description\\s+'([\\S\\s]*)'");
         Matcher matcher = headerPattern.matcher(groupLine);
         if(matcher.matches())
             groupLine = "Group '" + matcher.group(1) + "' size " + gr.getNumberOfProducts() + " description '" + matcher.group(3) + "'";
@@ -431,7 +431,6 @@ public class ProductActions extends JFrame {
             JLabel secondLabel = new JLabel("Що потрібно зробити з товаром: ");
             JButton add = new JButton("Додати");
             JButton remove = new JButton("Списати");
-            //Product pr = null;
             JButton submit = new JButton("Submit");
             JSpinner spinner = new JSpinner();
             final boolean[] choice = {false};

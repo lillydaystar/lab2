@@ -56,7 +56,7 @@ public class ProductPattern {
 
     boolean satisfiesDescription(String description) {
         if (this.description == null) return true;
-        return description.contains(this.description);
+        return this.regex ? StringMatch.matches(description, this.name) : description.contains(this.description);
     }
 
     boolean satisfiesTypeFilter(Product product) {
