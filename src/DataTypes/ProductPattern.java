@@ -29,7 +29,7 @@ public class ProductPattern {
             double patternPrice = Double.parseDouble(this.price);
             return patternPrice == price;
         } catch (NumberFormatException e) {
-            throw new IncorrectPriceException(e.getMessage());
+            throw new IncorrectPriceException("Incorrect format of \"price\" field");
         }
     }
 
@@ -39,7 +39,7 @@ public class ProductPattern {
             double patternCount = Double.parseDouble(this.count);
             return patternCount == count;
         } catch (NumberFormatException e) {
-            throw new IncorrectCountException(e.getMessage());
+            throw new IncorrectCountException("Incorrect format of \"count\" field");
         }
     }
 

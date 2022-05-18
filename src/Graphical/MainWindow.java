@@ -12,6 +12,7 @@ import java.util.List;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.util.Objects;
 import java.util.Vector;
 
 public class MainWindow extends JFrame {
@@ -37,6 +38,7 @@ public class MainWindow extends JFrame {
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         this.setSize(WIDTH, HEIGHT);
         this.setLocation(Tools.getCenterLocation(WIDTH, HEIGHT));
+        deleteFiles();
         createTopPanel();
         this.setVisible(true);
     }
@@ -128,8 +130,8 @@ public class MainWindow extends JFrame {
         this.taskPanel.setPreferredSize(new Dimension(90, 200));
         JButton azSortButton = new JButton("a->z");
         JButton zaSortButton = new JButton("z->a");
-        JButton incrSortButton = new JButton("Incr");
-        JButton decrSortButton = new JButton("Decr");
+        JButton incSortButton = new JButton("Inc");
+        JButton decSortButton = new JButton("Dec");
         JButton addButton = new JButton(choice == GROUP ? "Add" : "New");
         JButton findButton = new JButton(choice == GROUP ? "Search" : "Find");
         JButton removeButton = new JButton(choice == GROUP ? "Remove" : "Delete");
@@ -167,7 +169,7 @@ public class MainWindow extends JFrame {
                 }
             }
         });
-        incrSortButton.addActionListener(press -> {
+        incSortButton.addActionListener(press -> {
             if (choice == GROUP) {
                 this.currentGroup.sortByPrice(true);
                 refreshGroup();
@@ -183,7 +185,7 @@ public class MainWindow extends JFrame {
                 }
             }
         });
-        decrSortButton.addActionListener(press -> {
+        decSortButton.addActionListener(press -> {
             if (choice == GROUP) {
                 this.currentGroup.sortByPrice(false);
                 refreshGroup();
@@ -247,8 +249,8 @@ public class MainWindow extends JFrame {
         this.taskPanel.add(azSortButton);
         this.taskPanel.add(zaSortButton);
         if (choice == GROUP || choice == PRODUCTS) {
-            this.taskPanel.add(incrSortButton);
-            this.taskPanel.add(decrSortButton);
+            this.taskPanel.add(incSortButton);
+            this.taskPanel.add(decSortButton);
         }
         this.taskPanel.add(findButton);
         this.taskPanel.add(addButton);
@@ -434,6 +436,19 @@ public class MainWindow extends JFrame {
             text.requestFocus();
         } catch (Exception f) {
             JOptionPane.showMessageDialog(null, f);
+        }
+    }
+
+    private void deleteFiles() {
+        File dir = new File("./Store");
+        try {
+            for (File file : Objects.requireNonNull(dir.listFiles())) {
+                boolean success = file.delete();
+                if (!success)
+                    throw new Exception();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error while clearing working directory");
         }
     }
 }

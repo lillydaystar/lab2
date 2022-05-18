@@ -194,9 +194,12 @@ class SearchWindow extends JFrame {
 
             return found;
         } catch (DataExceptions e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(this, e.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);
+            if (e.getMessage().equals("Incorrect format of \"count\" field"))
+                this.countField.setText("");
+            if (e.getMessage().equals("Incorrect format of \"price\" field"))
+                this.priceField.setText("");
         }
         return new LinkedList<>();
     }
